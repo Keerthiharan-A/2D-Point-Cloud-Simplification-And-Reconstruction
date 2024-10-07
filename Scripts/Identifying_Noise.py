@@ -3,6 +3,7 @@ from scipy.spatial import cKDTree
 import matplotlib.pyplot as plt
 
 class IdNoise:
+
     def __init__(self, file_path):
         self.point_set = self.load_xy_data(file_path)
 
@@ -17,12 +18,12 @@ class IdNoise:
 
         distances, _ = tree.query(self.point_set, k=2)  # k=2 to get the closest neighbor
         closest_distances = distances[:, 1]
-
+        # self.plot_distances(closest_distances)
         # Calculate the average distance
         average_distance = np.mean(closest_distances) + 2 * np.std(closest_distances)
 
         # Plot the distances
-        self.plot_distances(closest_distances)
+        #self.plot_distances(closest_distances)
 
         counts = []
         for point in self.point_set:
@@ -49,9 +50,8 @@ class IdNoise:
 
     def get_classification(self):
         """Classify the point set as Clean or Noisy based on the average count."""
-        average_count, std_dev_count, _ = self.compute_average_distance_and_counts()
-        range_value = average_count + 2 * std_dev_count
-        return "Clean" if range_value < 3 else "Noisy"
+        average_count, _, _ = self.compute_average_distance_and_counts()
+        return "Clean" if average_count < 3 else "Noisy"
 
     @staticmethod
     def plot_frequency(counts):
@@ -67,17 +67,18 @@ class IdNoise:
         plt.show()
 
 # Example usage
-file_path = r'D:\image-data\2D_Dataset\car\BandNoise\car-01-7.5-2.xy'  # Replace with your .xy file path
-id_noise = IdNoise(file_path)
+# file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction-main/2D_Dataset/watch/DistortedNoise/watch-1-0.1.xy'  # Replace with your .xy file path'  # Replace with your .xy file path
+# id_noise = IdNoise(file_path)
 
-average_count, std_dev_count, counts = id_noise.compute_average_distance_and_counts()
+# average_count, std_dev_count, counts = id_noise.compute_average_distance_and_counts()
 
-print(f"Average count of points in surrounding circle: {average_count:.4f}")
-print(f"Standard deviation of counts: {std_dev_count:.4f}")
 
-# Plot the frequency of counts
-IdNoise.plot_frequency(counts)
+# print(f"Average count of points in surrounding circle: {average_count:.4f}")
+# print(f"Standard deviation of counts: {std_dev_count:.4f}")
 
-# Check classification
-classification = id_noise.get_classification()
-print(f"The classification of the point set is: {classification}")
+# #Plot the frequency of counts
+# IdNoise.plot_frequency(counts)
+
+# #Check classification
+# classification = id_noise.get_classification()
+# print(f"The classification of the point set is: {classification}")
