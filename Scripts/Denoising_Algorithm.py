@@ -61,7 +61,7 @@ class Denoising:
             big, small = max(dist,big), min(dist, small)
 
         # Return true if the largest distance is less than twice the smallest distance
-        return big < 2 * small
+        return big < 5 * small
 
     def identify_flower_structures(self):
         flower_points = []
@@ -105,6 +105,7 @@ class Denoising:
         if noise_type == "Clean":
             return self.point_set
         elif noise_type == "Band":
+            print("band noise")
             # Denoise for Band
             # for each point 
             for iteration in range(self.iterations):
@@ -118,10 +119,32 @@ class Denoising:
             
             # Save the final denoised points after all iterations
             self.save_to_xy_file(self.point_set, self.file_path.replace('.xy', f'_denoised_{self.iterations}iters.xy'))
-            return self.point_set
+            # after few iterations, check for flower structure
+           # Identify flower points and get their indices
+            flower_points = self.identify_flower_structures()
+            
+            # Initialize the list to hold the denoised points
+            denoised_points = []
+            
+            # Set of flower point indices for quick lookup
+            flower_points_set = set(flower_points)
+
+            # Loop over all points in the point set
+            for idx, point in enumerate(self.point_set):
+                if idx in flower_points_set:
+                    # Apply denoising method to flower points
+                    denoised_point = self.weighted_least_squares_and_projection(idx)
+                else:
+                    # Keep non-flower points as they are
+                    denoised_point = point
+                denoised_points.append(denoised_point)
+            self.point_set = np.array(denoised_points) 
+            self.save_to_xy_file(self.point_set, self.file_path.replace('.xy', f'flower_denoised_.xy'))
+
            
         else:
-            
+            print("distorted noise")
+
             return 0
     def weighted_least_squares_and_projection(self, point_idx):
         neighbor_indices = [neighbor[0] for neighbor in self.neighbors[point_idx]]
@@ -164,6 +187,6 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-file_path = r'/Users/minureghunath/Documents/Research/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/donkey/BandNoise/donkey1-7.5-2.xy'  # Replace with your .xy file path
+file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/bird/BandNoise/bird-17-10-2.xy'  # Replace with your .xy file path
 denoising = Denoising(file_path, iterations=10)
-print(denoising.denoise_point_set())
+denoising.denoise_point_set()

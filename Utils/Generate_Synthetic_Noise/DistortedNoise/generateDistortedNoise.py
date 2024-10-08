@@ -20,19 +20,28 @@ class PointNoiseGenerator:
         """Add Gaussian noise to a specified percentage of the points."""
         num_points = self.points.shape[0]
 
-        num_noisy_points = int(noise_percentage * num_points)
+       # num_noisy_points = int(noise_percentage * num_points)
+        num_noisy_points = len(self.points[:, 0])
         
         # Randomly choose indices for noisy points
         noisy_indices = np.random.choice(num_points, num_noisy_points, replace=False)
   
         # Calculate standard deviations for x and y based on bounding box size
-        std_dev_x = 0.04 * self.width
-        std_dev_y = 0.04 * self.height
+        # std_dev_x = 0.04 * self.width
+        # std_dev_y = 0.04 * self.height
+
+        std_dev_x = noise_percentage * self.width
+        std_dev_y = noise_percentage * self.height
         
-        # Add Gaussian noise only to the selected noisy points
+        # Add Gaussian noise only to the selected  points
+        # noisy_points = self.points.copy()
+        # noisy_points[noisy_indices, 0] += np.random.normal(0, std_dev_x, size=num_noisy_points)
+        # noisy_points[noisy_indices, 1] += np.random.normal(0, std_dev_y, size=num_noisy_points)
+
+        # Add Gaussian noise only to all the points
         noisy_points = self.points.copy()
-        noisy_points[noisy_indices, 0] += np.random.normal(0, std_dev_x, size=num_noisy_points)
-        noisy_points[noisy_indices, 1] += np.random.normal(0, std_dev_y, size=num_noisy_points)
+        noisy_points[:, 0] += np.random.normal(0, std_dev_x, size=num_noisy_points)
+        noisy_points[:, 1] += np.random.normal(0, std_dev_y, size=num_noisy_points)
 
         return noisy_points
 
@@ -72,11 +81,11 @@ class PointNoiseGenerator:
 # Example usage
 if __name__ == "__main__":
 
-    input_file = r'D:\2D_Denoising\2D_Dataset\apple\BandNoise\apple-1.xy'  # Replace this with your input file path
+    input_file = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/apple/apple-1.xy'  # Replace this with your input file path
     points = PointNoiseGenerator.read_points(input_file)
     
     generator = PointNoiseGenerator(points)
-    noise_percentage = 0.1  # 10% of points will have noise
+    noise_percentage = 0.01  # 10% of points will have noise
 
     # Generate Gaussian noise (on a specified percentage of points)
     noisy_points = generator.generate_distorted_noise(noise_percentage)

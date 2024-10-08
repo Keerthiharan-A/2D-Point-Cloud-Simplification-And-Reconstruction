@@ -18,5 +18,5 @@ def plot_data(points):
     plt.tight_layout()
     plt.show()
 
-points = np.loadtxt(r'D:\2D_Denoising\distorted-10.xy')
+points = np.loadtxt(r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/bird/BandNoise/bird-17-7.5-2_denoised_10iters.xy')
 plot_data(points)
