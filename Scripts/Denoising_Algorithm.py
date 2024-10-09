@@ -4,6 +4,8 @@ from Identifying_Noise import IdNoise
 from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+#from PointCloudVisualizer import PointVisualizerApp
+from ViewInputOutput import DualPointVisualizerApp
 
 class Denoising:
 
@@ -69,7 +71,7 @@ class Denoising:
         for i in range(len(self.point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
-        self.plot_delaunay_with_flowers(flower_points)
+        #self.plot_delaunay_with_flowers(flower_points)
         print(len(flower_points))
         return flower_points
 
@@ -118,8 +120,11 @@ class Denoising:
                 print(f"Iteration {iteration + 1} completed")
             
             # Save the final denoised points after all iterations
-            self.save_to_xy_file(self.point_set, self.file_path.replace('.xy', f'_denoised_{self.iterations}iters.xy'))
-            # after few iterations, check for flower structure
+            denoised_file_path = self.file_path.replace('.xy', f'_denoised_{self.iterations}iters.xy')
+            self.save_to_xy_file(self.point_set, denoised_file_path)
+            #self.save_to_xy_file(self.point_set, self.file_path.replace('.xy', f'_denoised_{self.iterations}iters.xy'))
+            # Visualize the denoised file with PointVisualizerApp
+                    # after few iterations, check for flower structure
            # Identify flower points and get their indices
             flower_points = self.identify_flower_structures()
             
@@ -139,7 +144,11 @@ class Denoising:
                     denoised_point = point
                 denoised_points.append(denoised_point)
             self.point_set = np.array(denoised_points) 
-            self.save_to_xy_file(self.point_set, self.file_path.replace('.xy', f'flower_denoised_.xy'))
+            denoised_file_path = self.file_path.replace('.xy', f'flower_denoised_.xy')
+
+            self.save_to_xy_file(self.point_set, denoised_file_path)
+            app = DualPointVisualizerApp(self.file_path, denoised_file_path)
+            app.open_windows()  # This will correctly initialize and run the main loop   
 
            
         else:
@@ -187,6 +196,6 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/bird/BandNoise/bird-17-10-2.xy'  # Replace with your .xy file path
+file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/camel/BandNoise/camel-1-7.5-2.xy'  # Replace with your .xy file path
 denoising = Denoising(file_path, iterations=10)
 denoising.denoise_point_set()

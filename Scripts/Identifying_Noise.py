@@ -18,7 +18,7 @@ class IdNoise:
 
         distances, _ = tree.query(self.point_set, k=2)  # k=2 to get the closest neighbor
         closest_distances = distances[:, 1]
-        # self.plot_distances(closest_distances)
+        #self.plot_distances(closest_distances)
         # Calculate the average distance
         average_distance = np.mean(closest_distances) + 2 * np.std(closest_distances)
 
@@ -51,7 +51,7 @@ class IdNoise:
     def get_classification(self):
         """Classify the point set as Clean or Noisy based on the average count."""
         average_count, _, _ = self.compute_average_distance_and_counts()
-        return "Clean" if average_count < 3 else "Noisy"
+        return "Clean" if average_count < 4 else "Noisy"
 
     @staticmethod
     def plot_frequency(counts):

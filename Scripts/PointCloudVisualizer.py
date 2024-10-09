@@ -4,17 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
-class PointVisualizerApp(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title('2D Point Visualizer')
-        self.geometry('600x750')
-
+class BasePointVisualizerApp:
+    def __init__(self, file_path=None):
+        self.file_path = file_path
+        self.file_name = file_path.split('/')[-1] if file_path else ""
         self.data = None
-        self.file_name = ""
-
-        # Hardcoded file path
-        self.file_path = "/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/bird015.png.txt"  # Replace this with your actual file path
 
         load_button = tk.Button(self, text="Load Data", command=self.load_data)
         load_button.pack(pady=10)
@@ -29,6 +23,9 @@ class PointVisualizerApp(tk.Tk):
         self.info_label.pack(pady=10)
 
         self.setup_figure()
+        
+        if self.file_path:
+            self.load_data()
 
     def setup_figure(self):
         """Setup the matplotlib figure and canvas."""
@@ -44,7 +41,6 @@ class PointVisualizerApp(tk.Tk):
         if self.file_path:
             try:
                 self.data = np.loadtxt(self.file_path, delimiter=' ')
-                self.file_name = self.file_path.split('/')[-1]
                 self.update_info()
                 self.plot_data()
             except Exception as e:
@@ -59,7 +55,7 @@ class PointVisualizerApp(tk.Tk):
             self.ax.set_title('2D Points')
             self.ax.set_xlabel('X coordinate')
             self.ax.set_ylabel('Y coordinate')
-            self.canvas.draw_idle()  # Use draw_idle instead of draw
+            self.canvas.draw_idle()
 
     def update_info(self):
         """Update the info label with the current file and point count."""
@@ -81,8 +77,8 @@ class PointVisualizerApp(tk.Tk):
             
     def reset_figure(self):
         """Reset the figure and canvas."""
-        self.canvas_widget.destroy()  # Destroy the existing canvas widget
-        self.toolbar.destroy()        # Destroy the existing toolbar
+        self.canvas_widget.destroy()
+        self.toolbar.destroy()
 
         self.fig, self.ax = plt.subplots()
         self.canvas = FigureCanvasTkAgg(self.fig, self)
@@ -94,7 +90,20 @@ class PointVisualizerApp(tk.Tk):
         self.canvas._tkcanvas.pack(fill=tk.BOTH, expand=True)
 
 
-if __name__ == "__main__":
-    app = PointVisualizerApp()
-    app.load_data()  # Automatically load data on startup
-    app.mainloop()
+class MainPointVisualizerApp(BasePointVisualizerApp, tk.Tk):
+    def __init__(self, file_path=None):
+        tk.Tk.__init__(self)  # Properly initialize tk.Tk
+        BasePointVisualizerApp.__init__(self, file_path)
+        self.title('2D Point Visualizer - Main')
+        self.geometry('600x750')
+
+
+class SecondaryPointVisualizerApp(BasePointVisualizerApp, tk.Toplevel):
+    def __init__(self, file_path=None, master=None):
+        tk.Toplevel.__init__(self, master=master)
+        BasePointVisualizerApp.__init__(self, file_path)
+        self.title('2D Point Visualizer - Secondary')
+        self.geometry('600x750')
+        # self.transient(master)  # Comment out or remove this line
+
+
