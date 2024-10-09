@@ -7,6 +7,83 @@ import statsmodels.api as sm
 #from PointCloudVisualizer import PointVisualizerApp
 from ViewInputOutput import DualPointVisualizerApp
 
+class PoinSet():
+
+    def __init__(self, point_set):
+        self.point_set = point_set
+        self.tri = Delaunay(point_set) # Finding global DT
+        self.neighbors = self.find_neighbors()
+        self.flower_points = self.identify_flower_structures()
+        self.neigh1, self.neigh2 = self.count_neighbours()
+        self.length = self.calculate_length()
+
+    def calculate_length(self):
+        """Calculate the bounding box of the input points."""
+        min_x = np.min(self.point_set[:, 0])
+        max_x = np.max(self.point_set[:, 0])
+        min_y = np.min(self.point_set[:, 1])
+        max_y = np.max(self.point_set[:, 1])
+        return max(max_x-min_x, max_y-min_y)
+
+    def find_neighbors(self):
+
+        neighbors = []
+
+        for _ in range(len(self.point_set)):
+            neighbors.append([])
+
+        for simplex in self.tri.simplices:
+            for point_idx in simplex:
+                for point_idx1 in simplex:
+                    dist = np.linalg.norm(self.point_set[point_idx] - self.point_set[point_idx1])
+                    if point_idx1 != point_idx and (point_idx1,dist) not in neighbors[point_idx]:                        
+                        neighbors[point_idx].append((point_idx1,dist))
+
+        return neighbors
+    
+    def check_flower_structure(self, point_idx):
+        big, small = 0, 1e7
+
+        for _, dist in self.neighbors[point_idx]:
+            big, small = max(dist,big), min(dist, small)
+
+        # Return true if the largest distance is less than twice the smallest distance
+        return big < 5 * small
+    
+    def identify_flower_structures(self):
+        flower_points = []
+        # Check each point for the flower structure
+        for i in range(len(self.point_set)):
+            if self.check_flower_structure(i):
+                flower_points.append(i)
+        self.plot_delaunay_with_flowers(flower_points)
+        return set(flower_points)
+    
+    def count_neighbours(self):
+        less5, more5 = 0, 0
+        for i in self.flower_points:
+            if len(self.neighbors[i]) < 5:
+                less5 += 1
+            else:
+                more5 += 1
+
+        return less5, more5
+    
+    def plot_delaunay_with_flowers(self, flower_points):
+        points = self.point_set
+        plt.triplot(points[:, 0], points[:, 1], self.tri.simplices, color='gray', linestyle='-', alpha=0.5)
+        plt.plot(points[:, 0], points[:, 1], 'o', color='blue')
+
+        # Highlight flower-like structure points
+        for idx in flower_points:
+            plt.plot(points[idx, 0], points[idx, 1], 'o', color='red', markersize=10, label='Flower Structure' if idx == flower_points[0] else "")
+
+        plt.legend()
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.title('Delaunay Triangulation with Flower Structure Points')
+        plt.show()
+
 class Denoising:
 
     def __init__(self, file_path,iterations=5):
@@ -15,6 +92,7 @@ class Denoising:
         self.id_noise = IdNoise(file_path)  # Create an instance of IdNoise
         self.tri = Delaunay(self.point_set) # Finding global DT
         self.neighbors = self.find_neighbors()
+        # self.points = PoinSet(point_set)
         self.iterations = iterations  # Number of denoising iterations
 
 
@@ -22,7 +100,11 @@ class Denoising:
         """Classify the point set and apply denoising if necessary."""
         classification = self.id_noise.get_classification()
         print(f"The classification of the point set is: {classification}")
-        
+        points = PoinSet(self.point_set)
+        print("# flower points with # neighbors < 5: ", points.neigh1)
+        print("# flower points with # neighbors >= 5: ", points.neigh2)
+        print("Bounding box length to # points: ", points.length/(len(points.flower_points)))
+
         if classification == "Noisy":
             noise_type = self.discern_noise()
             return noise_type
@@ -35,9 +117,8 @@ class Denoising:
         """Placeholder for the denoising logic."""
         #delaunay = Delaunay(self.point_set)
         flower_points = self.identify_flower_structures()
-        # self.plot_delaunay_with_flowers(triangles, flower_points)
-        return "Distorted" if len(flower_points) < 0.045*len(self.point_set) else "Band" # Modify this line to return the actual denoised point set
-        #return "Distorted" if len(flower_points) < 50 else "Band" # Modify this line to return the actual denoised point set
+        # self.plot_delaunay_with_flowers(flower_points)
+        return "Distorted" if len(flower_points) < 0.6*len(self.point_set) else "Band" # Modify this line to return the actual denoised point set
 
     def find_neighbors(self):
 
@@ -71,8 +152,8 @@ class Denoising:
         for i in range(len(self.point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
-        #self.plot_delaunay_with_flowers(flower_points)
-        print(len(flower_points))
+        # self.plot_delaunay_with_flowers(flower_points)
+        print("Total # flower points: ", len(flower_points))
         return flower_points
 
     def plot_delaunay_with_flowers(self, flower_points):
@@ -126,14 +207,10 @@ class Denoising:
             # Visualize the denoised file with PointVisualizerApp
                     # after few iterations, check for flower structure
            # Identify flower points and get their indices
-            flower_points = self.identify_flower_structures()
-            
-            # Initialize the list to hold the denoised points
-            denoised_points = []
-            
-            # Set of flower point indices for quick lookup
-            flower_points_set = set(flower_points)
+            denoised_points_iter = PoinSet(self.point_set)
+            flower_points_set = denoised_points_iter.flower_points
 
+            denoised_points = []
             # Loop over all points in the point set
             for idx, point in enumerate(self.point_set):
                 if idx in flower_points_set:
@@ -143,6 +220,7 @@ class Denoising:
                     # Keep non-flower points as they are
                     denoised_point = point
                 denoised_points.append(denoised_point)
+
             self.point_set = np.array(denoised_points) 
             denoised_file_path = self.file_path.replace('.xy', f'flower_denoised_.xy')
 
@@ -196,6 +274,10 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/camel/BandNoise/camel-1-7.5-2.xy'  # Replace with your .xy file path
+file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/fish/BandNoise/fish-1-7.5-2.xy'  # Replace with your .xy file path
 denoising = Denoising(file_path, iterations=10)
-denoising.denoise_point_set()
+denoising.classify_noise()
+
+# Idea for teh new discrenment : if (# flower pts)/(bounding box width or length) is <= 2 --> Band noise, else if <10 --> Distorted Noise, else  clean
+# Drawbacks : If the points in some animal with legs then the # flower points for a clean set itself is high because the pts in between the legs forms flower points, so samples should be suitably chosen. 
+# Advantages : This can plausibly work for sparsley sampled points
