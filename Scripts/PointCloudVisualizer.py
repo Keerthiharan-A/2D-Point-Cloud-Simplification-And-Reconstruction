@@ -51,10 +51,12 @@ class BasePointVisualizerApp:
         if self.data is not None:
             self.reset_figure()
             self.ax.clear()
-            self.ax.scatter(self.data[:, 0], self.data[:, 1], color='blue', s=10)
-            self.ax.set_title('2D Points')
-            self.ax.set_xlabel('X coordinate')
-            self.ax.set_ylabel('Y coordinate')
+            self.ax.scatter(self.data[:, 0], self.data[:, 1], color='blue', s=15)
+            #self.ax.set_title('2D Points')
+            #self.ax.set_xlabel('X coordinate')
+            #self.ax.se
+            # t_ylabel('Y coordinate')
+            self.ax.set_axis_off()
             self.canvas.draw_idle()
 
     def update_info(self):
@@ -107,3 +109,6 @@ class SecondaryPointVisualizerApp(BasePointVisualizerApp, tk.Toplevel):
         # self.transient(master)  # Comment out or remove this line
 
 
+if __name__ == "__main__":
+    app = MainPointVisualizerApp("/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/apple/DistortedNoise/apple-1-0.01.xy")
+    app.mainloop()
