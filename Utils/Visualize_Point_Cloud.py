@@ -10,7 +10,7 @@ def plot_data(points):
     fig, ax1 = plt.subplots(1, 1, figsize=(12, 6))
 
     # Plot original points
-    ax1.scatter(points[:, 0], points[:, 1], color='blue', label='Point Set')
+    ax1.scatter(points[:, 0], points[:, 1], color='black', label='Point Set')
     ax1.set_title('Original Points')
     ax1.set_aspect('equal')
     ax1.legend()
@@ -18,5 +18,5 @@ def plot_data(points):
     plt.tight_layout()
     plt.show()
 
-points = np.loadtxt(r'/home/user/Documents/Minu/2D Denoising/Images/stretchdenoise/sd_bunny-0.02.xy')
+points = np.loadtxt(r'2D_Dataset/chopper/BandNoise/chopper-01-12.5-5.xy')
 plot_data(points)

@@ -51,7 +51,7 @@ class BasePointVisualizerApp:
         if self.data is not None:
             self.reset_figure()
             self.ax.clear()
-            self.ax.scatter(self.data[:, 0], self.data[:, 1], color='blue', s=15)
+            self.ax.scatter(self.data[:, 0], self.data[:, 1], color='black', s=15)
             #self.ax.set_title('2D Points')
             #self.ax.set_xlabel('X coordinate')
             #self.ax.se

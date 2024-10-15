@@ -43,8 +43,8 @@ def process_dataset(dataset_dir, noise_levels):
 
 if __name__ == "__main__":
     # Parameters
-    dataset_dir = '../../../2D_Dataset'  # Path to the dataset directory
-    noise_levels = [0.005, 0.01, 0.015,0.02]  # Values of noise levels to apply
+    dataset_dir = '/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/New_Data'  # Path to the dataset directory
+    noise_levels = [0.005, 0.01, 0.015, 0.02]  # Values of noise levels to apply
 
     # Process the dataset and generate noise
     process_dataset(dataset_dir, noise_levels)

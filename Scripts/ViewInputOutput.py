@@ -23,9 +23,9 @@ class DualPointVisualizerApp:
 
 # Example usage
 if __name__ == "__main__":
-    #file_path_input = "/path/to/input/pointset.xy"
-    #file_path_output = "/path/to/output/denoised_pointset.xy"
+    file_path_input = "/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/chopper/BandNoise/chopper-01-12.5-5.xy"
+    file_path_output = "/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/dude/DistortedNoise/dude0-0.015.xy"
 
     # Create an instance of DualPointVisualizerApp and open both windows
-    app = DualPointVisualizerApp()
+    app = DualPointVisualizerApp(file_path_input,file_path_output)
     app.open_windows()
