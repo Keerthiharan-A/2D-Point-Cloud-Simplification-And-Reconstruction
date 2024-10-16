@@ -1,1 +1,0 @@
-Hausdorff distance between Ground Truth and Denoised points: 12.62639266366789
