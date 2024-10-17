@@ -53,11 +53,11 @@ def read_points_from_file(file_path):
 
 if __name__ == "__main__":
     # Read input points from file
-    input_file = r'C:\Users\KEERTHIHARAN\Downloads\Figure10.txt'  # Replace this with the path to your input file
+    input_file = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/teddy/gt.xy'  # Replace this with the path to your input file
     points = read_points_from_file(input_file)
 
     # Parameters
-    max_r = 20  # Maximum radius for noise generation
+    max_r = 10  # Maximum radius for noise generation
     nl = 2        # Base number of noise points to generate per unit of radius
 
     # Generate noise band
@@ -67,4 +67,4 @@ if __name__ == "__main__":
     plot_noise_band(points, noise_points)
 
     # Optionally save the noise points to a file
-    # np.savetxt("output_noise_points.txt", noise_points, fmt='%.6f', delimiter=' ')
+    np.savetxt("teddy_vary_band_10.xy", noise_points, fmt='%.6f', delimiter=' ')
