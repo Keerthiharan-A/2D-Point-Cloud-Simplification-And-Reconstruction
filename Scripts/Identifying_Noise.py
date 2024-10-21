@@ -12,11 +12,11 @@ class IdNoise:
         """Load point set from a .xy file."""
         return np.loadtxt(file_path)
 
-    def compute_average_distance_and_counts(self):
+    def compute_distance_and_counts(point_set):
         """Compute the average distance to closest neighbors and the counts."""
-        tree = cKDTree(self.point_set)
+        tree = cKDTree(point_set)
 
-        distances, _ = tree.query(self.point_set, k=2)  # k=2 to get the closest neighbor
+        distances, _ = tree.query(point_set, k=2)  # k=2 to get the closest neighbor
         closest_distances = distances[:, 1]
         #self.plot_distances(closest_distances)
         # Calculate the average distance
@@ -26,8 +26,8 @@ class IdNoise:
         #self.plot_distances(closest_distances)
 
         counts = []
-        for point in self.point_set:
-            count = np.sum(np.linalg.norm(self.point_set - point, axis=1) <= average_distance)
+        for point in point_set:
+            count = np.sum(np.linalg.norm(point_set - point, axis=1) <= average_distance)
             counts.append(count)
 
         counts = np.array(counts)
@@ -35,7 +35,7 @@ class IdNoise:
         average_count = np.mean(counts)
         std_dev_count = np.std(counts)
 
-        return average_count, std_dev_count, counts
+        return np.mean(closest_distances), np.std(closest_distances), average_count, std_dev_count
 
     @staticmethod
     def plot_distances(closest_distances):
@@ -50,7 +50,7 @@ class IdNoise:
 
     def get_classification(self):
         """Classify the point set as Clean or Noisy based on the average count."""
-        average_count, _, _ = self.compute_average_distance_and_counts()
+        _, _, average_count, _ = self.compute_distance_and_counts(self.point_set)
         return "Clean" if average_count < 4 else "Noisy"
 
     @staticmethod

@@ -20,14 +20,14 @@ def process_dataset(dataset_dir, noise_levels):
             # Find the .xy file in the current object folder
             xy_file = None
             
-            for file in os.listdir(object_folder_path):
+            for file in os.listdir(distorted_noise_folder):
                 if file.endswith('.xy'):
                     xy_file = file
                     break  # We only need the first .xy file found
             
             if xy_file:
                 # Read points from the .xy file
-                points = PointNoiseGenerator.read_points(os.path.join(object_folder_path, xy_file))
+                points = PointNoiseGenerator.read_points(os.path.join(distorted_noise_folder, xy_file))
                 generator = PointNoiseGenerator(points)
                 
                 # Generate noise for each specified noise level
@@ -43,7 +43,7 @@ def process_dataset(dataset_dir, noise_levels):
 
 if __name__ == "__main__":
     # Parameters
-    dataset_dir = '/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/New_Data'  # Path to the dataset directory
+    dataset_dir = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Additional_data'  # Path to the dataset directory
     noise_levels = [0.005, 0.01, 0.015, 0.02]  # Values of noise levels to apply
 
     # Process the dataset and generate noise

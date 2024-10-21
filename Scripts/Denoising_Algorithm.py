@@ -26,7 +26,7 @@ class PointSet():
         min_y = np.min(self.point_set[:, 1])
         max_y = np.max(self.point_set[:, 1])
         return max(max_x-min_x, max_y-min_y)
-
+    
     def find_neighbors(self):
 
         neighbors = []
@@ -58,7 +58,7 @@ class PointSet():
         for i in range(len(self.point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
-        self.plot_delaunay_with_flowers(flower_points)
+        #self.plot_delaunay_with_flowers(flower_points)
         return set(flower_points)
     
     def count_neighbours(self):
@@ -92,12 +92,13 @@ class Denoising:
         self.point_set = IdNoise.load_xy_data(noisy_file_path)
         self.gt_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(noisy_file_path))), 'gt.xy')
         self.ground_truth = IdNoise.load_xy_data(self.gt_file_path)
+        self.scaled_point_set = self.min_max_scaling()
         self.id_noise = IdNoise(noisy_file_path)  # Create an instance of IdNoise
         self.tri = Delaunay(self.point_set) # Finding global DT
         self.neighbors = self.find_neighbors()
         self.file_path = noisy_file_path
         # self.points = PointSet(point_set)
-        self.iterations = 35  # Number of denoising iterations
+        self.iterations = 3  # Number of denoising iterations
         self.chamfer_distance()
 
     def chamfer_distance(self):
@@ -105,6 +106,16 @@ class Denoising:
         distances_AB = cdist(self.ground_truth, self.point_set, metric='euclidean')
         distances_BA = cdist(self.point_set, self.ground_truth, metric='euclidean')
 
+    def min_max_scaling(self):
+        """Scale the points to the range [0, 1]."""
+        min_vals = np.min(self.point_set, axis=0)
+        max_vals = np.max(self.point_set, axis=0)
+        
+        # Apply Min-Max scaling
+        scaled_points = (self.point_set - min_vals) / (max_vals - min_vals)
+        
+        return scaled_points
+    
     # Compute the average of the minimum distances from each point in one set to the other
         chamfer_AB = np.mean(np.min(distances_AB, axis=1))
         chamfer_BA = np.mean(np.min(distances_BA, axis=1))
@@ -123,23 +134,19 @@ class Denoising:
         """Classify the point set and apply denoising if necessary."""
         classification = self.id_noise.get_classification()
        #print(f"The classification of the point set is: {classification}")
-        points = PointSet(self.point_set)
-        print("# flower points with # neighbors < 5: ", points.neigh1)
-        print("# flower points with # neighbors >= 5: ", points.neigh2)
-        bounding_box_to_flower = points.length/(len(points.flower_points))
-        print("Bounding box length to # points: ", points.length/(len(points.flower_points)))
+        #points = PointSet(self.point_set)
+        # print("# flower points with # neighbors < 5: ", points.neigh1)
+        # print("# flower points with # neighbors >= 5: ", points.neigh2)
+        # bounding_box_to_flower = points.length/(len(points.flower_points))
+        #print("Bounding box length to # points: ", points.length/(len(points.flower_points)))
         #print("ratio: " ,bounding_box_to_flower )
-        if bounding_box_to_flower <=2:
-           return "Band"
-        elif  bounding_box_to_flower <=10:
-           return "Distorted"
+        # if bounding_box_to_flower <=2:
+        #    return "Band"
+        # elif  bounding_box_to_flower <=10:
+        return "Distorted"
         # if classification == "Noisy":
         #     noise_type = self.discern_noise()
         #     return noise_type
-        else:
-            # print("Point set is already clean. No denoising required.")
-            # return self.point_set  # Return the original point set if clean
-           return "Clean"
 
     def discern_noise(self):
         """Placeholder for the denoising logic."""
@@ -152,7 +159,7 @@ class Denoising:
 
         neighbors = []
 
-        for _ in range(len(self.point_set)):
+        for _ in range(len(self.scaled_point_set)):
             neighbors.append([])
 
         for simplex in self.tri.simplices:
@@ -177,7 +184,7 @@ class Denoising:
     def identify_flower_structures(self):
         flower_points = []
         # Check each point for the flower structure
-        for i in range(len(self.point_set)):
+        for i in range(len(self.scaled_point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
         # self.plot_delaunay_with_flowers(flower_points)
@@ -185,7 +192,7 @@ class Denoising:
         return flower_points
 
     def plot_delaunay_with_flowers(self, flower_points):
-        points = self.point_set
+        points = self.scaled_point_set
         plt.triplot(points[:, 0], points[:, 1], self.tri.simplices, color='gray', linestyle='-', alpha=0.5)
         plt.plot(points[:, 0], points[:, 1], 'o', color='blue')
 
@@ -217,28 +224,28 @@ class Denoising:
             print("band noise")
             for iteration in range(self.iterations):
                 denoised_points = []
-                for point_idx in range(len(self.point_set)):
+                for point_idx in range(len(self.scaled_point_set)):
                     denoised_point = self.weighted_least_squares_and_projection(point_idx)
                     denoised_points.append(denoised_point)
                 
-                self.point_set = np.array(denoised_points)  # Update point set for next iteration
+                self.scaled_point_set = np.array(denoised_points)  # Update point set for next iteration
                 #self.point_set = PointSet(np.array(denoised_points))
                 #self.chamfer_distance()
             
             # Save the final denoised points after all iterations
             denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', f'_denoised_{self.iterations}iters.xy'))
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
-            self.save_to_xy_file(self.point_set, denoised_file_path)
+            self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
             # app = DualPointVisualizerApp(self.file_path, denoised_file_path)
             # app.open_windows()  # This will correctly initialize and run the main loop   
 
             # Visualize the denoised file with PointVisualizerApp
                     # after few iterations, check for flower structure
            # Identify flower points and get their indices
-            denoised_points_iter = PointSet(self.point_set)
+            denoised_points_iter = PointSet(self.scaled_point_set)
             flower_points_set = denoised_points_iter.flower_points
 
-            denoised_points = self.point_set
+            denoised_points = self.scaled_point_set
             # Loop over all points in the point set
             for idx, point in enumerate(self.point_set):
                 if idx in flower_points_set:
@@ -246,10 +253,10 @@ class Denoising:
                     # Apply denoising method to flower points
                         denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
 
-            self.point_set = np.array(denoised_points) 
+            self.scaled_point_set = np.array(denoised_points) 
             denoised_file_path =  self.file_path.replace('.xy', f'_flower_denoised_.xy')
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
-            self.save_to_xy_file(self.point_set, denoised_file_path)
+            self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
             app = DualPointVisualizerApp(self.file_path, denoised_file_path)
             app.open_windows()  # This will correctly initialize and run the main loop
             #self.chamfer_distance()
@@ -259,33 +266,33 @@ class Denoising:
             self.rmse()
             for iteration in range(self.iterations):
                 denoised_points = []
-                for point_idx in range(len(self.point_set)):
+                for point_idx in range(len(self.scaled_point_set)):
                     denoised_point = self.weighted_least_squares_and_projection(point_idx)
                     denoised_points.append(denoised_point)
                 
-                self.point_set = np.array(denoised_points)  # Update point set for next iteration
+                self.scaled_point_set = np.array(denoised_points)  # Update point set for next iteration
                 #self.chamfer_distance()
                 # print(f"Iteration {iteration + 1} completed")
             
             # Save the final denoised points after all iterations
             denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', f'_denoised_2iters.xy'))
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
-            self.save_to_xy_file(self.point_set, denoised_file_path)
-            denoised_points_iter = PointSet(self.point_set)
+            self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
+            denoised_points_iter = PointSet(self.scaled_point_set)
             flower_points_set = denoised_points_iter.flower_points
 
-            denoised_points = self.point_set
+            denoised_points = self.scaled_point_set
             # Loop over all points in the point set
-            for idx, point in enumerate(self.point_set):
+            for idx, point in enumerate(self.scaled_point_set):
                 if idx in flower_points_set:
                     for idx1, _ in denoised_points_iter.neighbors[idx]:
                     # Apply denoising method to flower points
                         denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
 
-            self.point_set = np.array(denoised_points) 
+            self.scaled_point_set = np.array(denoised_points) 
             denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', '_flower_denoised.xy'))
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
-            self.save_to_xy_file(self.point_set, denoised_file_path)
+            self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
             app = DualPointVisualizerApp(self.file_path, denoised_file_path)
             app.open_windows()  # This will correctly initialize and run the main loop   
             #self.chamfer_distance()
@@ -299,19 +306,16 @@ class Denoising:
         q1, q3 = np.percentile(distances, [25, 75])
         iqr = q3 - q1
         threshold = q3
-        #threshold = 10000
-        
-        # Filter neighbors based on distance threshold
-        #filtered_neighbors = [(idx, dist) for idx, dist in zip(neighbor_indices, distances) if dist > threshold]
         #print(len(filtered_neighbors))
+        
         filtered_neighbors = [(idx, dist) for idx, dist in zip(neighbor_indices, distances) if dist <= threshold]
         if len(filtered_neighbors) < 2:
-            return self.point_set[point_idx]
+            return self.scaled_point_set[point_idx]
 
         # Prepare data for WLS
         neighbor_indices = [idx for idx, _ in filtered_neighbors]
         distances = [dist for _, dist in filtered_neighbors]
-        neighbor_points = self.point_set[neighbor_indices]
+        neighbor_points = self.scaled_point_set[neighbor_indices]
 
         X = sm.add_constant(neighbor_points[:, 0])
         y = neighbor_points[:, 1]
@@ -321,7 +325,8 @@ class Denoising:
         results = model.fit()
         intercept, slope = results.params
         # Calculate the closest point on the line to the original point
-        original_point = self.point_set[point_idx]
+        original_point = self.scaled_point_set[point_idx]
+        print(f"Intercept: {intercept}, slope: {slope}")
         if np.isinf(slope):  # Special case for vertical line
             proj_x = neighbor_points[:, 0].mean()
             proj_y = original_point[1]
@@ -336,9 +341,9 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/teddy/BandNoise/teddy_vary_band.xy'  # Replace with your .xy file path
-gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
-denoising = Denoising(noisy_file_path, gt_file_path)
+noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\2D_Dataset\teddy\DistortedNoise\teddy-01-0.01.xy'  # Replace with your .xy file path
+#gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
+denoising = Denoising(noisy_file_path)
 denoising.denoise_point_set()
 
 # Idea for teh new discrenment : if (# flower pts)/(bounding box width or length) is <= 2 --> Band noise, else if <10 --> Distorted Noise, else  clean
