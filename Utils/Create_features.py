@@ -8,8 +8,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Scripts.Identifying_Noise import IdNoise
 
 class Features:
-    """Class to extract features from a point set."""
-    
+    """Class to extract features from a point set."""    
     def __init__(self, file_path):
         self.point_set = self.load_xy_data(file_path)
         if self.point_set.size == 0:  # Check if the point set is empty
@@ -23,10 +22,10 @@ class Features:
         self.mean_closest_distance, self.std_closest_distance, self.average_count, self.std_count = IdNoise.compute_distance_and_counts(self.scaled_point_set)
     
     def get_features(self):
-        """Return the extracted features."""
-        return (len(self.scaled_point_set), len(self.flower_points)/len(self.scaled_point_set), self.neigh1, 
-                self.neigh2, self.mean_closest_distance, self.std_closest_distance, 
-                self.std_count)
+        """Return the extracted features."""        
+        return (len(self.scaled_point_set), len(self.flower_points) / len(self.scaled_point_set), 
+                self.neigh1, self.neigh2, self.mean_closest_distance, 
+                self.std_closest_distance, self.std_count)
     
     def load_xy_data(self, file_path):
         """Load point set from a .xy file."""
@@ -44,8 +43,10 @@ class Features:
         """Scale the points to the range [0, 1]."""
         min_vals = np.min(self.point_set, axis=0)
         max_vals = np.max(self.point_set, axis=0)
-        scaled_points = (self.point_set - min_vals) / (max_vals - min_vals)
+        range_vals = max_vals - min_vals
+        range_vals[range_vals == 0] = 1
         
+        scaled_points = (self.point_set - min_vals) / range_vals        
         return scaled_points
     
     def find_neighbors(self):
@@ -63,7 +64,7 @@ class Features:
         return neighbors
     
     def check_flower_structure(self, point_idx):
-        """Check if a point has a flower structure."""
+        """Check if a point has a flower structure."""        
         big, small = 0, 1e7
         for _, dist in self.neighbors[point_idx]:
             big = max(dist, big)
@@ -78,12 +79,12 @@ class Features:
     
     def count_neighbours(self):
         """Count points with less than and more than 5 neighbors."""
-        more5,fmore5 = 0, 0
-        for i in self.scaled_point_set:
+        more5, fmore5 = 0, 0
+        for i in range(len(self.scaled_point_set)):  # Iterate over indices
             if i in self.flower_points:
                 if len(self.neighbors[i]) >= 5:
                     fmore5 += 1
             if len(self.neighbors[i]) >= 5:
                 more5 += 1
 
-        return more5/len(self.scaled_point_set), fmore5/len(self.flower_points)
+        return more5 / len(self.scaled_point_set), fmore5 / len(self.flower_points) if self.flower_points else 0
