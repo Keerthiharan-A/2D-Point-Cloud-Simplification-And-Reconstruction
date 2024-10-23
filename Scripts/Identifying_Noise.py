@@ -50,8 +50,7 @@ class IdNoise:
 
     def get_classification(self):
         """Classify the point set as Clean or Noisy based on the average count."""
-        _, _, average_count, _ = self.compute_distance_and_counts(self.point_set)
-        return "Clean" if average_count < 4 else "Noisy"
+        
 
     @staticmethod
     def plot_frequency(counts):
