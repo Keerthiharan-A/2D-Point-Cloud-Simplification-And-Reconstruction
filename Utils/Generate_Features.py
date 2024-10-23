@@ -50,5 +50,5 @@ def process_xy_files(directory):
     print("Features saved to features_output.csv")
 
 if __name__ == "__main__":
-    root_directory = r"D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data"
+    root_directory = r"/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/Feature_data"
     process_xy_files(root_directory)
