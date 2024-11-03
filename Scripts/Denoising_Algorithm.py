@@ -141,7 +141,7 @@ class Denoising:
         features_object = Features(self.point_path)
         features = np.array(features_object.get_features())
 
-        with open(r"D:\2D-Point-Cloud-Simplification-And-Reconstruction\best_random_forest_model.pkl", "rb") as input_model:
+        with open(r"/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/best_random_forest_model.pkl", "rb") as input_model:
             classifier_model = pickle.load(input_model)
 
         label = classifier_model.predict(features.reshape(1, -1))
@@ -345,7 +345,7 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\apple\BandNoise\apple-1-7.5-2.xy'  # Replace with your .xy file path
+noisy_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/car/BandNoise/car-01-12.5-5.xy'  # Replace with your .xy file path
 #gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
 denoising = Denoising(noisy_file_path, 35)
 denoising.denoise_point_set()
