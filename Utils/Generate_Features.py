@@ -35,7 +35,8 @@ def process_xy_files(directory):
                         'more5_neighbor_ovr': features[3],
                         'mean_closest_distance': features[4],
                         'std_closest_distance': features[5],
-                        'std_count': features[6],
+                        'mean_count': features[6],
+                        'std_count': features[7],
                         'label': label,
                     })
                 except ValueError as e:

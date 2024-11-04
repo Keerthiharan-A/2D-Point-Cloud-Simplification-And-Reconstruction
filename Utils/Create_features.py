@@ -25,7 +25,7 @@ class Features:
         """Return the extracted features."""        
         return (len(self.scaled_point_set), len(self.flower_points) / len(self.scaled_point_set), 
                 self.neigh1, self.neigh2, self.mean_closest_distance, 
-                self.std_closest_distance, self.std_count)
+                self.std_closest_distance, self.average_count, self.std_count)
     
     def load_xy_data(self, file_path):
         """Load point set from a .xy file."""
