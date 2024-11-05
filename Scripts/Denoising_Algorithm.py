@@ -142,7 +142,7 @@ class Denoising:
         features_object = Features(self.point_path)
         features = np.array(features_object.get_features())
 
-        with open(r"/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/best_random_forest_model.pkl", "rb") as input_model:
+        with open(r"best_random_forest_model.pkl", "rb") as input_model:
             classifier_model = pickle.load(input_model)
 
         label = classifier_model.predict(features.reshape(1, -1))
