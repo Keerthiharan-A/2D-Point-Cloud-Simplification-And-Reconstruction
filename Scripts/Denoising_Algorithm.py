@@ -97,8 +97,8 @@ class Denoising:
     def __init__(self, noisy_file_path, iterations = 20):
         self.point_path = noisy_file_path
         self.point_set = IdNoise.load_xy_data(noisy_file_path)
-        self.gt_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(noisy_file_path))), 'gt.xy')
-        self.ground_truth = IdNoise.load_xy_data(self.gt_file_path)
+        #self.gt_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(noisy_file_path))), 'gt.xy')
+        #self.ground_truth = IdNoise.load_xy_data(self.gt_file_path)
         self.scaled_point_set = self.min_max_scaling()
         self.id_noise = IdNoise(noisy_file_path)  # Create an instance of IdNoise
         self.tri = Delaunay(self.point_set) # Finding global DT
@@ -106,7 +106,7 @@ class Denoising:
         self.file_path = noisy_file_path
         # self.points = PointSet(point_set)
         self.iterations = iterations  # Number of denoising iterations
-        self.chamfer_distance()
+        # self.chamfer_distance()
 
     def chamfer_distance(self):
     # Compute all pairwise distances between points in ground_truth and point_set
@@ -361,7 +361,7 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\apple\DistortedNoise\apple-1-0.01.xy'  # Replace with your .xy file path
+noisy_file_path = r'/home/user/Documents/Minu/test_prgms/add_noise/benchmark_data/perturbed_outputs/mc4_delta0.003.txt'  # Replace with your .xy file path
 #gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
 denoising = Denoising(noisy_file_path, 1)
 denoising.denoise_point_set()
