@@ -146,12 +146,12 @@ class Denoising:
             classifier_model = pickle.load(input_model)
 
         label = classifier_model.predict(features.reshape(1, -1))
-        if label == 1:
-            return "Band"
-        elif label == 2:
+        if label == 0:
+            return "Clean"
+        elif label == 1:
             return "Distorted"
         else:
-            return "Clean"
+            return "Band"
         
     def discern_noise(self):
         """Placeholder for the denoising logic."""
