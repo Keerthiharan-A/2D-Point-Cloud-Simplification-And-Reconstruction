@@ -70,7 +70,7 @@ class Features:
             big = max(dist, big)
             small = min(dist, small)
 
-        return big < 5 * small
+        return big < 2 * small
     
     def identify_flower_structures(self):
         """Identify flower structures in the point set."""

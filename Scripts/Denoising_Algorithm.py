@@ -56,7 +56,7 @@ class PointSet():
             big, small = max(dist,big), min(dist, small)
 
         # Return true if the largest distance is less than twice the smallest distance
-        return big < 5 * small
+        return big < 2 * small
     
     def identify_flower_structures(self):
         flower_points = []
@@ -100,7 +100,6 @@ class Denoising:
         #self.gt_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(noisy_file_path))), 'gt.xy')
         #self.ground_truth = IdNoise.load_xy_data(self.gt_file_path)
         self.scaled_point_set = self.min_max_scaling()
-        self.id_noise = IdNoise(noisy_file_path)  # Create an instance of IdNoise
         self.tri = Delaunay(self.point_set) # Finding global DT
         self.neighbors = self.find_neighbors()
         self.file_path = noisy_file_path
@@ -184,7 +183,7 @@ class Denoising:
             big, small = max(dist,big), min(dist, small)
 
         # Return true if the largest distance is less than twice the smallest distance
-        return big < 5 * small
+        return big < 2 * small
 
     def identify_flower_structures(self):
         flower_points = []
@@ -339,11 +338,11 @@ class Denoising:
         X = neighbor_points[:, 0]
         y = neighbor_points[:, 1]
         weights = 1 / np.array(distances)
-
-        # model = sm.WLS(y, X, weights=weights)
-        # results = model.fit()
-        # intercept, slope = results.params
-        slope, intercept = self.weighted_linear_regression(X,y,weights)
+        X = sm.add_constant(X)
+        model = sm.WLS(y, X, weights=weights)
+        results = model.fit()
+        intercept, slope = results.params
+        #slope, intercept = self.weighted_linear_regression(X,y,weights)
         #print(f"Subject to constraints, Slope is {slope}, Intercept is {intercept}")
         # Calculate the closest point on the line to the original point
         original_point = self.scaled_point_set[point_idx]
@@ -361,7 +360,7 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'/home/user/Documents/Minu/test_prgms/add_noise/benchmark_data/perturbed_outputs/mc4_delta0.003.txt'  # Replace with your .xy file path
+noisy_file_path = r'/home/user/Documents/Minu/test_prgms/add_noise/benchmark_data/perturbed_outputs/mc4-0.01.xy'  # Replace with your .xy file path
 #gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
-denoising = Denoising(noisy_file_path, 1)
+denoising = Denoising(noisy_file_path, 3)
 denoising.denoise_point_set()

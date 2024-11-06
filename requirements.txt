@@ -44,9 +44,9 @@ pure_eval==0.2.3
 Pygments==2.18.0
 pyparsing==3.1.4
 python-dateutil==2.9.0
-pytorch3d==0.7.7
+#pytorch3d==0.7.7
 pytz==2024.2
-pywin32==306
+#pywin32==306
 PyYAML==6.0.2
 pyzmq==26.2.0
 requests==2.28.1
@@ -60,9 +60,9 @@ statsmodels==0.14.1
 tabulate==0.9.0
 termcolor==2.4.0
 threadpoolctl==3.5.0
-torch==1.12.1+cu113
-torchaudio==0.12.1+cu113
-torchvision==0.13.1+cu113
+#torch==1.12.1+cu113
+#torchaudio==0.12.1+cu113
+#torchvision==0.13.1+cu113
 tornado==6.4.1
 tqdm==4.66.5
 traitlets==5.14.3

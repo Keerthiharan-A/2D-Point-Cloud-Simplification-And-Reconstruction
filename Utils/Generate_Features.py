@@ -6,7 +6,7 @@ def label_file(file_name):
     """Label the file based on its name."""
     if any(file_name.endswith(suffix + '.xy') for suffix in ['-7.5-2', '-10-2', '-12.5-5']):
         return 'Band'
-    elif any(file_name.endswith(suffix + '.xy') for suffix in ['-0.01', '-0.015', '-0.02', '-0.005']):
+    elif any(file_name.endswith(suffix + '.xy') for suffix in ['-0.01', '-0.015', '-0.02', '-0.005','-0.003','-0.01','-0.03']):
         return 'Distorted'
     else:
         return 'Clean'
