@@ -1,0 +1,13 @@
+Name,CD,RMSE
+c2d_fish-1-0.005-denoised.xy,7.812147761,463.5112463
+fc_fish-1-0.005-denoised.xy,12.23067922,
+sd_fish-1-0.005-denoised.xy,12.23067922,
+c2d_guitar_0.01-denoised.xy,10.07354419,750.9121877
+fc_guitar_0.01-denoised.xy,11.30019152,
+sd_guitar_0.01-denoised.xy,11.30019152,
+c2d_hammer-1-0.02-denoised.xy,21.39295006,366.2779895
+fc_hammer-1-0.02-denoised.xy,132.5925615,
+sd_hammer-1-0.02-denoised.xy,132.5925615,
+c2d_teddy-01-0.015-denoised.xy,11.00967023,
+fc_teddy-01-0.015-denoised.xy,21.41949235,
+sd_teddy-01-0.015-denoised.xy,21.41949235,
