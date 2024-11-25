@@ -18,5 +18,5 @@ def plot_data(points):
     plt.tight_layout()
     plt.show()
 
-points = np.loadtxt(r'2D_Dataset/chopper/BandNoise/chopper-01-12.5-5.xy')
+points = np.loadtxt(r'/home/user/Documents/Minu/test_prgms/2D_visualization/point_set.txt')
 plot_data(points)

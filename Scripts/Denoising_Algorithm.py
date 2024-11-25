@@ -56,7 +56,7 @@ class PointSet():
             big, small = max(dist,big), min(dist, small)
 
         # Return true if the largest distance is less than twice the smallest distance
-        return big < 2 * small
+        return big < 5 * small
     
     def identify_flower_structures(self):
         flower_points = []
@@ -64,7 +64,7 @@ class PointSet():
         for i in range(len(self.point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
-        #self.plot_delaunay_with_flowers(flower_points)
+        self.plot_delaunay_with_flowers(flower_points)
         return set(flower_points)
     
     def count_neighbours(self):
@@ -102,6 +102,8 @@ class Denoising:
         self.scaled_point_set = self.min_max_scaling()
         self.tri = Delaunay(self.point_set) # Finding global DT
         self.neighbors = self.find_neighbors()
+        self.flower_points = self.identify_flower_structures()
+
         self.file_path = noisy_file_path
         # self.points = PointSet(point_set)
         self.iterations = iterations  # Number of denoising iterations
@@ -140,11 +142,11 @@ class Denoising:
         """Classify the point set and apply denoising if necessary."""
         features_object = Features(self.point_path)
         features = np.array(features_object.get_features())
-
+        print(features)
         with open(r"best_random_forest_model.pkl", "rb") as input_model:
             classifier_model = pickle.load(input_model)
-
         label = classifier_model.predict(features.reshape(1, -1))
+        print(classifier_model.predict_proba(features.reshape(1, -1)))
         if label == 0:
             return "Clean"
         elif label == 1:
@@ -183,7 +185,7 @@ class Denoising:
             big, small = max(dist,big), min(dist, small)
 
         # Return true if the largest distance is less than twice the smallest distance
-        return big < 2 * small
+        return big < 5 * small
 
     def identify_flower_structures(self):
         flower_points = []
@@ -191,23 +193,27 @@ class Denoising:
         for i in range(len(self.scaled_point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
-        # self.plot_delaunay_with_flowers(flower_points)
+        self.plot_delaunay_with_flowers(flower_points)
         print("Total # flower points: ", len(flower_points))
         return flower_points
 
     def plot_delaunay_with_flowers(self, flower_points):
         points = self.scaled_point_set
-        plt.triplot(points[:, 0], points[:, 1], self.tri.simplices, color='gray', linestyle='-', alpha=0.5)
-        plt.plot(points[:, 0], points[:, 1], 'o', color='blue')
+        plt.triplot(points[:, 0], points[:, 1], self.tri.simplices, color='gray', linestyle='-', alpha=0.7,linewidth=3)
+        plt.plot(points[:, 0], points[:, 1], 'o', color='blue', markersize=14)
 
         # Highlight flower-like structure points
         for idx in flower_points:
-            plt.plot(points[idx, 0], points[idx, 1], 'o', color='red', markersize=10, label='Flower Structure' if idx == flower_points[0] else "")
+            plt.plot(points[idx, 0], points[idx, 1], 'o', color='red', markersize=14, label='Flower Structure' if idx == flower_points[0] else "")
 
-        plt.legend()
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('Delaunay Triangulation with Flower Structure Points')
+        #plt.legend()
+        #plt.xlabel('X')
+        #plt.ylabel('Y')
+        #plt.title('Delaunay Triangulation with Flower Structure Points')
+        plt.gca().invert_xaxis()   
+        plt.gca().invert_yaxis()
+        plt.axis('off')
+  
         plt.show()
 
     @staticmethod
@@ -223,6 +229,7 @@ class Denoising:
         plt.show()
 
     def denoise_point_set(self):
+        #noise_type = "Distorted"
         noise_type = self.classify_noise()
         if noise_type == "Band":
             print("band noise")
@@ -276,21 +283,22 @@ class Denoising:
             denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', f'_denoised_2iters.xy'))
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
             self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
-            denoised_points_iter = PointSet(self.scaled_point_set)
-            flower_points_set = denoised_points_iter.flower_points
+            #computing the flower points again and doing MLS only on those points
+            # denoised_points_iter = PointSet(self.scaled_point_set)
+            # flower_points_set = denoised_points_iter.flower_points
 
-            denoised_points = self.scaled_point_set
+            # denoised_points = self.scaled_point_set
             # Loop over all points in the point set
-            for idx, point in enumerate(self.scaled_point_set):
-                if idx in flower_points_set:
-                    for idx1, _ in denoised_points_iter.neighbors[idx]:
-                    # Apply denoising method to flower points
-                        denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
+            # for idx, point in enumerate(self.scaled_point_set):
+            #     if idx in flower_points_set:
+            #         for idx1, _ in denoised_points_iter.neighbors[idx]:
+            #         # Apply denoising method to flower points
+            #             denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
 
-            self.scaled_point_set = np.array(denoised_points) 
-            denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', '_flower_denoised.xy'))
-            os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
-            self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
+            #self.scaled_point_set = np.array(denoised_points) 
+            #denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', '_flower_denoised.xy'))
+            #os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
+            #self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
             app = DualPointVisualizerApp(self.file_path, denoised_file_path)
             app.open_windows()  
             #self.chamfer_distance()
@@ -341,7 +349,15 @@ class Denoising:
         X = sm.add_constant(X)
         model = sm.WLS(y, X, weights=weights)
         results = model.fit()
-        intercept, slope = results.params
+        # print(results.params, end=" ")
+        # print(X, end=" ")
+        # print(y)
+        if len(results.params) == 1:
+            slope = float('inf')
+            intercept = results.params[0]
+        else:
+            intercept, slope = results.params
+
         #slope, intercept = self.weighted_linear_regression(X,y,weights)
         #print(f"Subject to constraints, Slope is {slope}, Intercept is {intercept}")
         # Calculate the closest point on the line to the original point
@@ -360,7 +376,8 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'/home/user/Documents/Minu/test_prgms/add_noise/benchmark_data/perturbed_outputs/mc4-0.01.xy'  # Replace with your .xy file path
+noisy_file_path = r'/home/user/Documents/Minu/test_prgms/2D_visualization/vase_spray_pointset.xy'  # Replace with your .xy file path
 #gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
-denoising = Denoising(noisy_file_path, 3)
+denoising = Denoising(noisy_file_path, 20)
 denoising.denoise_point_set()
+exit(0)

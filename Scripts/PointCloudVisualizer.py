@@ -51,7 +51,7 @@ class BasePointVisualizerApp:
         if self.data is not None:
             self.reset_figure()
             self.ax.clear()
-            self.ax.scatter(self.data[:, 0], self.data[:, 1], color='black', s=15)
+            self.ax.scatter(self.data[:, 0], self.data[:, 1], color='black', s=5)
             #self.ax.set_title('2D Points')
             #self.ax.set_xlabel('X coordinate')
             #self.ax.se
@@ -110,5 +110,5 @@ class SecondaryPointVisualizerApp(BasePointVisualizerApp, tk.Toplevel):
 
 
 if __name__ == "__main__":
-    app = MainPointVisualizerApp("/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/apple/DistortedNoise/apple-1-0.01.xy")
+    app = MainPointVisualizerApp("/home/user/Documents/Minu/test_prgms/2D_visualization/vase_spray_pointset_flower_denoised_.xy")
     app.mainloop()
