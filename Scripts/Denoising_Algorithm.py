@@ -64,7 +64,7 @@ class PointSet():
         for i in range(len(self.point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
-        self.plot_delaunay_with_flowers(flower_points)
+        #self.plot_delaunay_with_flowers(flower_points)
         return set(flower_points)
     
     def count_neighbours(self):
@@ -142,11 +142,11 @@ class Denoising:
         """Classify the point set and apply denoising if necessary."""
         features_object = Features(self.point_path)
         features = np.array(features_object.get_features())
-        print(features)
+        #print(features)
         with open(r"best_random_forest_model.pkl", "rb") as input_model:
             classifier_model = pickle.load(input_model)
         label = classifier_model.predict(features.reshape(1, -1))
-        print(classifier_model.predict_proba(features.reshape(1, -1)))
+        #print(classifier_model.predict_proba(features.reshape(1, -1)))
         if label == 0:
             return "Clean"
         elif label == 1:
@@ -193,7 +193,7 @@ class Denoising:
         for i in range(len(self.scaled_point_set)):
             if self.check_flower_structure(i):
                 flower_points.append(i)
-        self.plot_delaunay_with_flowers(flower_points)
+        #self.plot_delaunay_with_flowers(flower_points)
         print("Total # flower points: ", len(flower_points))
         return flower_points
 
@@ -236,7 +236,8 @@ class Denoising:
             for iteration in range(self.iterations):
                 denoised_points = []
                 for point_idx in range(len(self.scaled_point_set)):
-                    denoised_point = self.weighted_least_squares_and_projection(point_idx)
+                    #denoised_point = self.weighted_least_squares_and_projection(point_idx)
+                    denoised_point = self.wls_with_normal(point_idx)
                     denoised_points.append(denoised_point)
                 print(f"Iteration {iteration+1} completed.")
                 self.scaled_point_set = np.array(denoised_points)
@@ -255,7 +256,8 @@ class Denoising:
                 if idx in flower_points_set:
                     for idx1, _ in denoised_points_iter.neighbors[idx]:
                     # Apply denoising method to flower points
-                        denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
+                        #denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
+                        denoised_points[idx1] = self.wls_with_normal(idx1)
 
             self.scaled_point_set = np.array(denoised_points) 
             denoised_file_path =  self.file_path.replace('.xy', f'_flower_denoised_.xy')
@@ -270,7 +272,8 @@ class Denoising:
             for iteration in range(self.iterations):
                 denoised_points = []
                 for point_idx in range(len(self.scaled_point_set)):
-                    denoised_point = self.weighted_least_squares_and_projection(point_idx)
+                    #denoised_point = self.weighted_least_squares_and_projection(point_idx)
+                    denoised_point = self.wls_with_normal(point_idx)
                     denoised_points.append(denoised_point)
 
                 #print(f"Average Mean squared error {error/len(self.scaled_point_set)}, for iteration {iteration + 1}")
@@ -293,7 +296,8 @@ class Denoising:
             #     if idx in flower_points_set:
             #         for idx1, _ in denoised_points_iter.neighbors[idx]:
             #         # Apply denoising method to flower points
-            #             denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
+            #             #denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
+            #             denoised_points[idx1] = self.wls_with_normal(idx1)
 
             #self.scaled_point_set = np.array(denoised_points) 
             #denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', '_flower_denoised.xy'))
@@ -306,24 +310,24 @@ class Denoising:
         else:
             print("The given point set is clean")
 
-    def weighted_linear_regression(self, X, y, weights):
+    # def weighted_linear_regression(self, X, y, weights):
 
-        def loss(params):
-            m, c = params
-            residuals = y - (m * X + c)
-            return np.sum(weights * residuals**2)
+    #     def loss(params):
+    #         m, c = params
+    #         residuals = y - (m * X + c)
+    #         return np.sum(weights * residuals**2)
         
-        def constraint(params):
-            m, c = params
-            return m + c - 1
+    #     def constraint(params):
+    #         m, c = params
+    #         return m + c - 1
 
-        initial_guess = [0, 0]
-        constr = {'type': 'eq', 'fun': constraint}
+    #     initial_guess = [0, 0]
+    #     constr = {'type': 'eq', 'fun': constraint}
 
-        result = minimize(loss, initial_guess, constraints=constr)
-        m_opt, c_opt = result.x
+    #     result = minimize(loss, initial_guess, constraints=constr)
+    #     m_opt, c_opt = result.x
 
-        return m_opt, c_opt
+    #     return m_opt, c_opt
 
     def weighted_least_squares_and_projection(self, point_idx):
         neighbor_indices = [neighbor[0] for neighbor in self.neighbors[point_idx]]
@@ -370,14 +374,52 @@ class Denoising:
             proj_y = slope * proj_x + intercept
 
         return np.array([proj_x, proj_y])
-    
+
+    def wls_with_normal(self, point_idx):
+        neighbor_indices = [neighbor[0] for neighbor in self.neighbors[point_idx]]
+        distances = [neighbor[1] for neighbor in self.neighbors[point_idx]]
+
+        q1, q3 = np.percentile(distances, [25, 75])
+        iqr = q3 - q1
+        threshold = q3 + 1.5 * iqr
+        filtered_neighbors = [(idx, dist) for idx, dist in zip(neighbor_indices, distances) if dist <= threshold]
+
+        if len(filtered_neighbors) < 2:
+            return self.scaled_point_set[point_idx]
+
+        neighbor_indices = [idx for idx, _ in filtered_neighbors]
+        distances = [dist for _, dist in filtered_neighbors]
+        neighbor_points = self.scaled_point_set[neighbor_indices]
+        weights = 1 / np.array(distances)
+
+        centroid = np.average(neighbor_points, axis=0, weights=weights)
+        
+        # Covariance matrix for the neighbors
+        relative_positions = neighbor_points - centroid
+        cov_matrix = np.cov(relative_positions.T, aweights=weights)
+
+        # Eigen decomposition to find the direction of least variance
+        eigenvalues, eigenvectors = np.linalg.eigh(cov_matrix)
+        normal_direction = eigenvectors[:, 0]
+        
+        original_point = self.scaled_point_set[point_idx]
+        displacement = np.dot(original_point - centroid, normal_direction)
+        updated_point = original_point - displacement * normal_direction
+        return updated_point
+
     def save_to_xy_file(self, points, file_path):
         """Save points to an .xy file."""
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'/home/user/Documents/Minu/test_prgms/2D_visualization/vase_spray_pointset.xy'  # Replace with your .xy file path
+noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\apple\DistortedNoise\apple-1-0.015.xy'  # Replace with your .xy file path
 #gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
 denoising = Denoising(noisy_file_path, 20)
 denoising.denoise_point_set()
-exit(0)
+
+
+
+
+# Running commands
+# conda activate denoising
+# python Scripts\Denoising_Algorithm.py
