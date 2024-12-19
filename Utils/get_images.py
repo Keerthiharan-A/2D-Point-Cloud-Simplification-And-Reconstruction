@@ -1,14 +1,14 @@
 import os
 import matplotlib.pyplot as plt
 
-dataset_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\2D_Dataset\apple'
+dataset_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/Feature_data/teddy'
 
 def load_gt_points(file_path):
     with open(file_path, 'r') as file:
         points = []
         for line in file:
             x, y = map(float, line.split())
-            points.append((x, y))
+            points.append((x, -y))
         return points
 
 ### Plot - 1
@@ -95,12 +95,14 @@ x_gt, y_gt = zip(*gt_points)
 
 axes[0].scatter(x_gt, y_gt, color='black', s=10)
 axes[0].set_title('Ground Truth')
+axes[0].axis("off")
+
 # axes[0].set_xlabel('X')
 # axes[0].set_ylabel('Y')
 
 # Plot Distorted Noise with noise level 1.5%
 distorted_file_path = None
-distorted_noise_level = 0.015  # 1.5%
+distorted_noise_level = 0.005  # 1.5%
 
 # Find the distorted file with 1.5% noise level
 noise_dir = os.path.join(dataset_path, 'DistortedNoise')
@@ -114,6 +116,8 @@ if distorted_file_path:
     x_noisy, y_noisy = zip(*noisy_points)
     axes[1].scatter(x_noisy, y_noisy, color='blue', s=10)
     axes[1].set_title(f'Distorted Noise - {int(distorted_noise_level * 100)}%')
+    axes[1].axis("off")
+
     # axes[1].set_xlabel('X')
     # axes[1].set_ylabel('Y')
 else:
@@ -136,6 +140,7 @@ if band_file_path:
     x_noisy, y_noisy = zip(*noisy_points)
     axes[2].scatter(x_noisy, y_noisy, color='red', s=10)
     axes[2].set_title(f'Band Noise - {int(band_noise_level)}% - Radius {radius}')
+    axes[2].axis("off")
     # axes[2].set_xlabel('X')
     # axes[2].set_ylabel('Y')
 else:
@@ -144,6 +149,7 @@ else:
 plt.tight_layout()
 output_path = os.path.join(dataset_path, 'selected_noise_point_sets.png')
 plt.savefig(output_path)
+
 plt.show()
 
 print(f"Plot saved to {output_path}")

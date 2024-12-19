@@ -412,7 +412,7 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\apple\DistortedNoise\apple-1-0.015.xy'  # Replace with your .xy file path
+noisy_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/teddy_vary_band_10.xy'  # Replace with your .xy file path
 #gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
 denoising = Denoising(noisy_file_path, 20)
 denoising.denoise_point_set()
