@@ -11,6 +11,9 @@ import os
 import sys
 import pickle
 from scipy.optimize import minimize
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.decomposition import PCA
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Utils.Create_features import Features
@@ -94,12 +97,13 @@ class PointSet():
 
 class Denoising:
 
-    def __init__(self, noisy_file_path, iterations = 20):
+    def __init__(self, noisy_file_path, iterations = 20, gt_file_path = None):
         self.point_path = noisy_file_path
         self.point_set = IdNoise.load_xy_data(noisy_file_path)
-        #self.gt_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(noisy_file_path))), 'gt.xy')
-        #self.ground_truth = IdNoise.load_xy_data(self.gt_file_path)
-        self.scaled_point_set = self.min_max_scaling()
+        self.gt_file_path = gt_file_path
+        self.ground_truth = IdNoise.load_xy_data(self.gt_file_path)
+        self.scaled_point_set = self.min_max_scaling(self.point_set)
+        self.scaled_gt = self.min_max_scaling(self.ground_truth)
         self.tri = Delaunay(self.point_set) # Finding global DT
         self.neighbors = self.find_neighbors()
         self.flower_points = self.identify_flower_structures()
@@ -107,31 +111,28 @@ class Denoising:
         self.file_path = noisy_file_path
         # self.points = PointSet(point_set)
         self.iterations = iterations  # Number of denoising iterations
-        # self.chamfer_distance()
+        self.chamfer_distance()
 
     def chamfer_distance(self):
-    # Compute all pairwise distances between points in ground_truth and point_set
-        distances_AB = cdist(self.ground_truth, self.point_set, metric='euclidean')
-        distances_BA = cdist(self.point_set, self.ground_truth, metric='euclidean')
-
-    def min_max_scaling(self):
-        """Scale the points to the range [0, 1]."""
-        min_vals = np.min(self.point_set, axis=0)
-        max_vals = np.max(self.point_set, axis=0)
-        
-        # Apply Min-Max scaling
-        scaled_points = (self.point_set - min_vals) / (max_vals - min_vals)
-        
-        return scaled_points
-    
-    # Compute the average of the minimum distances from each point in one set to the other
+        # Compute all pairwise distances between points in ground_truth and point_set
+        distances_AB = cdist(self.scaled_gt, self.scaled_point_set, metric='euclidean')
+        distances_BA = cdist(self.scaled_point_set, self.scaled_gt, metric='euclidean')
+        # Compute the average of the minimum distances from each point in one set to the other
         chamfer_AB = np.mean(np.min(distances_AB, axis=1))
         chamfer_BA = np.mean(np.min(distances_BA, axis=1))
-
-    # Chamfer distance is the average of these two directed distances
+        # Chamfer distance is the average of these two directed distances
         chamfer_dist = (chamfer_AB + chamfer_BA) / 2.0
-        print("Chamfer distance between Ground Truth and Denoised points:", chamfer_dist)
-
+        print("Chamfer distance is:", chamfer_dist)
+    
+    def min_max_scaling(self, pointset):
+        """Scale the points to the range [0, 1]."""
+        min_vals = np.min(pointset, axis=0)
+        max_vals = np.max(pointset, axis=0)
+        
+        # Apply Min-Max scaling
+        scaled_points = (pointset - min_vals) / (max_vals - min_vals)
+        
+        return scaled_points
     
     def rmse(self):
         # Compute the Euclidean distances and RMSE
@@ -228,6 +229,49 @@ class Denoising:
         plt.tight_layout()
         plt.show()
 
+    def clustering(self, n_clusters=4):
+        curvatures = []
+
+        for i, point in enumerate(self.point_set):
+            neighbors = self.neighbors[i]
+            if len(neighbors) < 3:
+                curvatures.append(0)
+                continue
+            neighbor_points = np.array([self.point_set[neighbor[0]] for neighbor in neighbors])
+            pca = PCA(n_components=2)
+            pca.fit(neighbor_points)
+            curvature = pca.explained_variance_ratio_[1] / pca.explained_variance_ratio_[0]
+            curvatures.append(curvature)
+
+        curvatures = np.array(curvatures).reshape(-1, 1)
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        kmeans_labels = kmeans.fit_predict(curvatures)
+        clusters = self.scaled_point_set[kmeans_labels == 3]
+
+        # cluster1 = self.scaled_point_set[kmeans_labels == 0]
+        # cluster2 = self.scaled_point_set[kmeans_labels == 1]
+        # if len(cluster1) > len(cluster2):
+        #     print("Plotting cluster 1")
+        #     clusters = cluster2
+        # else:
+        #     print("Plotting cluster 0")
+        #     clusters = cluster1
+
+        silhouette_avg = silhouette_score(self.scaled_point_set, kmeans_labels)
+        print(f"Silhouette Score: {silhouette_avg:.3f}")
+
+        num_clusters = len(set(kmeans_labels))
+        print(f"Number of clusters: {num_clusters}")
+        print(f"Number of points in this cluster: {len(clusters)}")
+        plt.figure(figsize=(8, 6))
+        plt.scatter(clusters[:, 0], clusters[:, 1], c='blue', cmap='viridis', marker='o', label='Clusters', s=5)
+        plt.title('KMeans Clustering Based on Curvature from Neighbors by PCA')
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.colorbar(label='Cluster ID')
+        plt.legend()
+        plt.show()
+
     def denoise_point_set(self):
         #noise_type = "Distorted"
         noise_type = self.classify_noise()
@@ -241,12 +285,12 @@ class Denoising:
                     denoised_points.append(denoised_point)
                 print(f"Iteration {iteration+1} completed.")
                 self.scaled_point_set = np.array(denoised_points)
-                #self.chamfer_distance()
+                self.chamfer_distance()
             
             # Save the final denoised points after all iterations
-            denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', f'_denoised_{self.iterations}iters.xy'))
-            os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
-            self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
+            #denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', f'_denoised_{self.iterations}iters.xy'))
+            #os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
+            #self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
             denoised_points_iter = PointSet(self.scaled_point_set)
             flower_points_set = denoised_points_iter.flower_points
 
@@ -255,11 +299,12 @@ class Denoising:
             for idx, point in enumerate(self.point_set):
                 if idx in flower_points_set:
                     for idx1, _ in denoised_points_iter.neighbors[idx]:
-                    # Apply denoising method to flower points
+                        # Apply denoising method to flower points
                         #denoised_points[idx1] = self.weighted_least_squares_and_projection(idx1)
                         denoised_points[idx1] = self.wls_with_normal(idx1)
 
-            self.scaled_point_set = np.array(denoised_points) 
+            self.scaled_point_set = np.array(denoised_points)
+            #self.clustering()
             denoised_file_path =  self.file_path.replace('.xy', f'_flower_denoised_.xy')
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
             self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
@@ -412,13 +457,10 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/teddy_vary_band_10.xy'  # Replace with your .xy file path
-#gt_file_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/2D_Dataset/swordfishes/swordfishes.xy'
-denoising = Denoising(noisy_file_path, 20)
+noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction - Copy\Feature_data\bunnyocc\BandNoise\bunny04occ4-7.5-2.xy'  # Replace with your .xy file path
+gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction - Copy\Feature_data\bunnyocc\BandNoise\bunny04occ4.xy'
+denoising = Denoising(noisy_file_path, 15, gt_file_path)
 denoising.denoise_point_set()
-
-
-
 
 # Running commands
 # conda activate denoising
