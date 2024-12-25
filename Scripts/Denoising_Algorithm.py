@@ -101,7 +101,6 @@ class PointSet():
 class Denoising:
 
     def __init__(self, noisy_file_path, iterations = 20, gt_file_path = None):
-    def __init__(self, noisy_file_path, iterations = 20, gt_file_path = None):
         self.point_path = noisy_file_path
         self.point_set = IdNoise.load_xy_data(noisy_file_path)
         self.gt_file_path = gt_file_path
