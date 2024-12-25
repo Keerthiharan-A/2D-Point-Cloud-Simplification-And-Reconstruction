@@ -14,6 +14,9 @@ from scipy.optimize import minimize
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.decomposition import PCA
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Utils.Create_features import Features
@@ -98,6 +101,7 @@ class PointSet():
 class Denoising:
 
     def __init__(self, noisy_file_path, iterations = 20, gt_file_path = None):
+    def __init__(self, noisy_file_path, iterations = 20, gt_file_path = None):
         self.point_path = noisy_file_path
         self.point_set = IdNoise.load_xy_data(noisy_file_path)
         self.gt_file_path = gt_file_path
@@ -128,8 +132,11 @@ class Denoising:
         """Scale the points to the range [0, 1]."""
         min_vals = np.min(pointset, axis=0)
         max_vals = np.max(pointset, axis=0)
+        min_vals = np.min(pointset, axis=0)
+        max_vals = np.max(pointset, axis=0)
         
         # Apply Min-Max scaling
+        scaled_points = (pointset - min_vals) / (max_vals - min_vals)
         scaled_points = (pointset - min_vals) / (max_vals - min_vals)
         
         return scaled_points
