@@ -18,5 +18,5 @@ def plot_data(points):
     plt.tight_layout()
     plt.show()
 
-points = np.loadtxt(r'/home/user/Documents/Minu/test_prgms/2D_visualization/point_set.txt')
+points = np.loadtxt(r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/Mouse0.txt')
 plot_data(points)
