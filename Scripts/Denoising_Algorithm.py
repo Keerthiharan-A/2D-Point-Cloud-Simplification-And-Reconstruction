@@ -263,13 +263,13 @@ class Denoising:
         plt.scatter(x_coords, y_coords, c=default_color, s=5, edgecolors='k', label='Other points')
 
         # Plot only the points with curvature > 0.5 and apply heatmap coloring
-        scatter = plt.scatter(filtered_x, filtered_y, c=filtered_curvatures, cmap='viridis', s=50, edgecolors='k', label='Curvature > 0.5')
+        scatter = plt.scatter(filtered_x, filtered_y, c=filtered_curvatures, cmap='viridis', s=50, edgecolors='k', label='Curvature > 0.3')
 
         # Add colorbar for the filtered points
         plt.colorbar(scatter, label='Curvature')
 
         # Title and labels
-        plt.title('All Points with Heatmap on Curvature > 0.4')
+        plt.title('All Points with Heatmap on Curvature > 0.3')
         plt.xlabel('X-coordinate')
         plt.ylabel('Y-coordinate')
         plt.legend()
@@ -291,8 +291,8 @@ class Denoising:
                     denoised_points.append(denoised_point)
                 print(f"Iteration {iteration+1} completed.")
                 cd_new = self.chamfer_distance()
-                if cd_old < cd_new:
-                    break
+                #if cd_old < cd_new:
+                #break
                 self.point_set = np.array(denoised_points)
                 cd_old = cd_new
 
@@ -352,7 +352,7 @@ class Denoising:
                          denoised_points[idx1] = self.wls_with_normal(idx1)
 
             self.scaled_point_set = np.array(denoised_points) 
-            denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', '_flower_denoised.xy'))
+            denoised_file_path = self.file_path.replace('.xy', '_flower_denoised.xy')          
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
             self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
             app = DualPointVisualizerApp(self.file_path, denoised_file_path)
@@ -464,9 +464,9 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction - Copy\Feature_data\teddy\BandNoise\teddy-01-7.5-2.xy'  # Replace with your .xy file path
-gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction - Copy\Feature_data\teddy\BandNoise\teddy-01.xy'
-denoising = Denoising(noisy_file_path, 35, gt_file_path)
+noisy_file_path = r'Feature_data/Monitor0.xy'  # Replace with your .xy file path
+gt_file_path = r'Feature_data/mullets/BandNoise/mullets.xy'
+denoising = Denoising(noisy_file_path, 15, gt_file_path)
 denoising.denoise_point_set()
 
 # Running commands

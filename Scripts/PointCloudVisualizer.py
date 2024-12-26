@@ -110,5 +110,5 @@ class SecondaryPointVisualizerApp(BasePointVisualizerApp, tk.Toplevel):
 
 
 if __name__ == "__main__":
-    app = MainPointVisualizerApp("/home/user/Documents/Minu/test_prgms/2D_visualization/vase_spray_pointset_flower_denoised_.xy")
+    app = MainPointVisualizerApp(r"/home/user/Documents/Minu/2D Denoising/Data/local_noise/Circle0.txt")
     app.mainloop()

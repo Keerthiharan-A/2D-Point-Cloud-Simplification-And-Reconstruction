@@ -46,7 +46,7 @@ def read_points_from_file(file_path):
 
 if __name__ == "__main__":
     # Read input points from file
-    input_file = r'C:\Users\KEERTHIHARAN\Downloads\Figure10.txt'  # Replace this with the path to your input file
+    input_file = r'/home/user/Documents/Minu/2D Denoising/Data/sharp_corners/sc5.txt'  # Replace this with the path to your input file
     points = read_points_from_file(input_file)
 
     # Parameters
@@ -58,3 +58,4 @@ if __name__ == "__main__":
 
     # Plot original points and noise band
     plot_noise_band(points, noise_points, r)
+    np.savetxt(r'sc5_band_12.5_2.xy', points, fmt='%.6f', delimiter=' ')
