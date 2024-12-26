@@ -277,8 +277,8 @@ class Denoising:
         return mask
 
     def denoise_point_set(self):
-        noise_type = "Band"
-        #noise_type = self.classify_noise()
+        #noise_type = "Distorted"
+        noise_type = self.classify_noise()
         cd_old = self.chamfer_distance()
         #self.clustering()
         if noise_type == "Band":
@@ -289,33 +289,47 @@ class Denoising:
                     #denoised_point = self.weighted_least_squares_and_projection(point_idx)
                     denoised_point = self.wls_with_normal(point_idx)
                     denoised_points.append(denoised_point)
+
+                self.point_set = np.array(denoised_points)
                 print(f"Iteration {iteration+1} completed.")
                 cd_new = self.chamfer_distance()
+                # Computing DT again
+                self.tri = Delaunay(self.point_set) # Finding global DT
+                self.neighbors = self.find_neighbors()
                 if cd_old < cd_new:
+                    cd_old = cd_new
                     break
-                self.point_set = np.array(denoised_points)
                 cd_old = cd_new
 
+            denoised_file_path1 =  self.file_path.replace('.xy', f'_denoised_.xy')
+            self.save_to_xy_file(self.point_set, denoised_file_path1)
+
             mask = self.clustering()
-            cnt = 0
-            denoised_points = []
-            for point_idx, point in enumerate(self.point_set):
-                if mask[point_idx]:
-                    denoised_point = self.wls_with_normal(point_idx)
-                    denoised_points.append(denoised_point)
-                    cnt += 1
-                else:
-                    denoised_points.append(point)
+            print("After curvature:")
 
-            self.point_set = np.array(denoised_points)
-            #print(cnt)
-            self.chamfer_distance()
-            self.clustering()
+            for iteration in range(self.iterations):
+                denoised_points = []
+                for point_idx, point in enumerate(self.point_set):
+                    if mask[point_idx]:
+                        denoised_point = self.quadratic_wls(point_idx)
+                        denoised_points.append(denoised_point)
+                    else:
+                        denoised_points.append(point)
+                print(f"Iteration {iteration+1} completed.")
+                self.point_set = np.array(denoised_points)
+                cd_new = self.chamfer_distance()
+                # Computing DT again
+                self.tri = Delaunay(self.point_set) # Finding global DT
+                self.neighbors = self.find_neighbors()
+                if cd_old < cd_new:
+                    break
+                cd_old = cd_new
 
-            denoised_file_path =  self.file_path.replace('.xy', f'_flower_denoised_.xy')
-            os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
+            denoised_file_path =  self.file_path.replace('.xy', f'_cluster_denoised_.xy')
+            #os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
             self.save_to_xy_file(self.point_set, denoised_file_path)
-            app = DualPointVisualizerApp(self.file_path, denoised_file_path)
+            #print(denoised_file_path)
+            app = DualPointVisualizerApp(denoised_file_path1, denoised_file_path)
             app.open_windows()
             #self.chamfer_distance()
            
@@ -352,7 +366,7 @@ class Denoising:
                          denoised_points[idx1] = self.wls_with_normal(idx1)
 
             self.scaled_point_set = np.array(denoised_points) 
-            denoised_file_path = os.path.join('Denoised_output', self.file_path.replace('.xy', '_flower_denoised.xy'))
+            denoised_file_path = self.file_path.replace('.xy', '_flower_denoised.xy')
             os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
             self.save_to_xy_file(self.scaled_point_set, denoised_file_path)
             app = DualPointVisualizerApp(self.file_path, denoised_file_path)
@@ -380,6 +394,37 @@ class Denoising:
     #     m_opt, c_opt = result.x
 
     #     return m_opt, c_opt
+
+    def quadratic_wls(self, point_idx): 
+        neighbor_indices = [neighbor[0] for neighbor in self.neighbors[point_idx]]
+        distances = [neighbor[1] for neighbor in self.neighbors[point_idx]]
+        
+        q1, q3 = np.percentile(distances, [25, 75])
+        iqr = q3 - q1
+        threshold = q3 + 1.5 * iqr
+        
+        filtered_neighbors = [(idx, dist) for idx, dist in zip(neighbor_indices, distances) if dist <= threshold]
+        if len(filtered_neighbors) < 3:
+            return self.point_set[point_idx]
+        
+        neighbor_indices = [idx for idx, _ in filtered_neighbors]
+        distances = [dist for _, dist in filtered_neighbors]
+        neighbor_points = self.point_set[neighbor_indices]
+
+        X = neighbor_points[:, 0]
+        y = neighbor_points[:, 1]
+        weights = 1 / np.array(distances)
+
+        X_quad = np.column_stack((X**2, X, np.ones_like(X)))
+        model = sm.WLS(y, X_quad, weights=weights)
+        results = model.fit()
+        a, b, c = results.params
+
+        original_point = self.point_set[point_idx]
+        proj_x = original_point[0]
+        proj_y = a * proj_x**2 + b * proj_x + c
+
+        return np.array([proj_x, proj_y])
 
     def weighted_least_squares_and_projection(self, point_idx):
         neighbor_indices = [neighbor[0] for neighbor in self.neighbors[point_idx]]
@@ -464,9 +509,9 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction - Copy\Feature_data\teddy\BandNoise\teddy-01-7.5-2.xy'  # Replace with your .xy file path
-gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction - Copy\Feature_data\teddy\BandNoise\teddy-01.xy'
-denoising = Denoising(noisy_file_path, 35, gt_file_path)
+noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\teddy\Band Noise\teddy-01-7.5-2.xy'  # Replace with your .xy file path
+gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\teddy\Band Noise\teddy-01.xy'
+denoising = Denoising(noisy_file_path, 10, gt_file_path)
 denoising.denoise_point_set()
 
 # Running commands
