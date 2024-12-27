@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 
-dataset_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/Feature_data/bird'
+dataset_path = r'/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/Feature_data/teddy'
 
 def load_gt_points(file_path):
     with open(file_path, 'r') as file:
@@ -23,7 +23,7 @@ gt_points = load_gt_points(gt_file_path)
 x_gt, y_gt = zip(*gt_points)
 
 axes[0].scatter(x_gt, y_gt, color='black', s=10)
-axes[0].set_title('Ground Truth')
+axes[0].set_title('Ground Truth', fontsize=13)
 axes[0].axis("off")
 # axes[0].set_xlabel('X')
 # axes[0].set_ylabel('Y')
@@ -55,7 +55,7 @@ for noise_type in noise_types:
             x_noisy, y_noisy = zip(*noisy_points)
             if current_index < len(axes):
                 axes[current_index].scatter(x_noisy, y_noisy, color='red', s=10)
-                axes[current_index].set_title(f'{noise_type}, nl = {(noise_level)}% , r = {radius}')
+                axes[current_index].set_title(f'{noise_type}, nl = {(noise_level)}% , r = {radius}', fontsize=13)
                 axes[current_index].set_xlabel('')
                 axes[current_index].set_ylabel('')
                 axes[current_index].axis("off")
@@ -77,7 +77,7 @@ for noise_type in noise_types:
                 x_noisy, y_noisy = zip(*noisy_points)
                 if current_index < len(axes):
                     axes[current_index].scatter(x_noisy, y_noisy, color='blue', s=10)
-                    axes[current_index].set_title(f'{noise_type}, nl = {(noise_level * 100)}%')
+                    axes[current_index].set_title(f'{noise_type}, nl = {(noise_level * 100)}%', fontsize=13)
                     axes[current_index].set_xlabel('')
                     axes[current_index].set_ylabel('')
                     axes[current_index].axis("off")
