@@ -277,8 +277,9 @@ class Denoising:
         return mask
 
     def denoise_point_set(self):
-        noise_type = "Band"
-        #noise_type = self.classify_noise()
+        #noise_type = "Distorted"
+        noise_type = self.classify_noise()
+        #noise_type = "Band"
         cd_old = self.chamfer_distance()
         #self.clustering()
         if noise_type == "Band":

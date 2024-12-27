@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with CurveBenchmark -->
+<svg
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:cc="http://creativecommons.org/ns#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+	width="1000"
+	height="1000"
+	id="svg2"
+	version="1.1"
+	sodipodi:docname="oc27">
+<defs
+	id="defs4" />
+<metadata
+	id="metadata7">
+	<rdf:RDF>
+		<cc:Work
+			rdf:about="">
+			<dc:format>image/svg+xml</dc:format>
+			<dc:type
+				rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+			<dc:title></dc:title>
+		</cc:Work>
+	</rdf:RDF>
+</metadata>
+<g
+	inkscape:label="Layer 1"
+	inkscape:groupmode="layer"
+	id="layer1">
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 4,586.976 61.9843,478.841 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 61.9843,478.841 104.284,345.639 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 104.284,345.639 143.469,217.137 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 143.469,217.137 176.386,113.702 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 176.386,113.702 223.386,4 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 223.386,4 293.922,134.069 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 293.922,134.069 340.922,265.721 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 340.922,265.721 402.057,359.739 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 402.057,359.739 474.141,466.308 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 474.141,466.308 563.459,417.724 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 563.459,417.724 651.227,340.939 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 651.227,340.939 779.729,223.404 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 779.729,223.404 898.831,110.569 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 898.831,110.569 996,13.4 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 996,13.4 981.9,182.653 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 981.9,182.653 964.649,329.972 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 964.649,329.972 945.849,458.474 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 945.849,458.474 922.332,585.41 z" id="boundary" inkscape:connector-curvature="0" />
+	<circle cx="4" cy="586.976" r="4" fill="#0" id="circle0"/>
+	<circle cx="61.9843" cy="478.841" r="4" fill="#0" id="circle1"/>
+	<circle cx="104.284" cy="345.639" r="4" fill="#0" id="circle2"/>
+	<circle cx="143.469" cy="217.137" r="4" fill="#0" id="circle3"/>
+	<circle cx="176.386" cy="113.702" r="4" fill="#0" id="circle4"/>
+	<circle cx="223.386" cy="4" r="4" fill="#0" id="circle5"/>
+	<circle cx="293.922" cy="134.069" r="4" fill="#0" id="circle6"/>
+	<circle cx="340.922" cy="265.721" r="4" fill="#0" id="circle7"/>
+	<circle cx="402.057" cy="359.739" r="4" fill="#0" id="circle8"/>
+	<circle cx="474.141" cy="466.308" r="4" fill="#0" id="circle9"/>
+	<circle cx="563.459" cy="417.724" r="4" fill="#0" id="circle10"/>
+	<circle cx="651.227" cy="340.939" r="4" fill="#0" id="circle11"/>
+	<circle cx="779.729" cy="223.404" r="4" fill="#0" id="circle12"/>
+	<circle cx="898.831" cy="110.569" r="4" fill="#0" id="circle13"/>
+	<circle cx="996" cy="13.4" r="4" fill="#0" id="circle14"/>
+	<circle cx="981.9" cy="182.653" r="4" fill="#0" id="circle15"/>
+	<circle cx="964.649" cy="329.972" r="4" fill="#0" id="circle16"/>
+	<circle cx="945.849" cy="458.474" r="4" fill="#0" id="circle17"/>
+	<circle cx="922.332" cy="585.41" r="4" fill="#0" id="circle18"/>
+	</g>
+</svg>

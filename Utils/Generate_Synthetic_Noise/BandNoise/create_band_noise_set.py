@@ -6,25 +6,42 @@ from generateBandNoise import generate_band_noise  # Importing the noise generat
 def save_noise_points(file_path, points):
     np.savetxt(file_path, points, fmt='%.6f', delimiter=' ')
 
-def process_dataset(dataset_dir, r_values, rl_values):
+def rename_txt_to_xy(folder_path):
+    """
+    Rename all .txt files in a folder to .xy.
+    """
+    for file in os.listdir(folder_path):
+        if file.endswith('.txt'):
+            base_name = os.path.splitext(file)[0]
+            new_name = f"{base_name}.xy"
+            old_path = os.path.join(folder_path, file)
+            new_path = os.path.join(folder_path, new_name)
+            os.rename(old_path, new_path)
 
+def process_dataset(dataset_dir, r_values, rl_values):
+    """
+    Process the dataset by generating band noise for each .xy file.
+    If the folder contains .txt files, rename them to .xy before processing.
+    """
     # Iterate through each folder in the dataset directory
     for object_folder in os.listdir(dataset_dir):
         object_folder_path = os.path.join(dataset_dir, object_folder)
         
         if os.path.isdir(object_folder_path):
+            # Rename any .txt files to .xy files
+            rename_txt_to_xy(object_folder_path)
+
             # Create BandNoise folder inside the object folder if it doesn't exist
             band_noise_folder = os.path.join(object_folder_path, 'BandNoise')
             os.makedirs(band_noise_folder, exist_ok=True)
             
-            # Get the first .xy, .png, and .edg files
+            # Get the first .xy file
             xy_file = None
-            
             for file in os.listdir(object_folder_path):
                 if file.endswith('.xy') and xy_file is None:
                     xy_file = file
             
-            if xy_file:                
+            if xy_file:
                 # Read the original points from the .xy file
                 points = np.loadtxt(os.path.join(object_folder_path, xy_file))
                 
@@ -41,11 +58,9 @@ def process_dataset(dataset_dir, r_values, rl_values):
 
 if __name__ == "__main__":
     # Parameters
-    dataset_dir = '/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/New_Data'  # Path to dataset directory
-    #output_dir = 'BandNoise'  # Output folder to store files and noisy points within each object folder
+    dataset_dir = '/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/NonManifold_data'  # Path to dataset directory
     r_values = [7.5, 10, 12.5]  # Values of r (circle radius)
     rl_values = [2, 2, 5]  # Values of rl (noise level)
-
 
     # Process the dataset and generate noise
     process_dataset(dataset_dir, r_values, rl_values)

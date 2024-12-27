@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with CurveBenchmark -->
+<svg
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:cc="http://creativecommons.org/ns#"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:svg="http://www.w3.org/2000/svg"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+	width="1000"
+	height="1000"
+	id="svg2"
+	version="1.1"
+	sodipodi:docname="test">
+<defs
+	id="defs4" />
+<metadata
+	id="metadata7">
+	<rdf:RDF>
+		<cc:Work
+			rdf:about="">
+			<dc:format>image/svg+xml</dc:format>
+			<dc:type
+				rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+			<dc:title></dc:title>
+		</cc:Work>
+	</rdf:RDF>
+</metadata>
+<g
+	inkscape:label="Layer 1"
+	inkscape:groupmode="layer"
+	id="layer1">
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 4,996 28.0352,871.454 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 28.0352,871.454 62.9956,690.097 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 62.9956,690.097 106.696,447.559 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 106.696,447.559 161.322,215.947 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 161.322,215.947 194.097,113.251 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 194.097,113.251 259.648,4 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 259.648,4 392.934,132.916 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 392.934,132.916 460.67,303.348 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 460.67,303.348 471.595,506.555 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 471.595,506.555 482.52,670.432 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 482.52,670.432 495.63,840.863 z" id="boundary" inkscape:connector-curvature="0" />
+	<path style="fill:none;stroke:red;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" d="M 495.63,840.863 482.52,971.965 z" id="boundary" inkscape:connector-curvature="0" />
+	<circle cx="4" cy="996" r="4" fill="#0" id="circle0"/>
+	<circle cx="28.0352" cy="871.454" r="4" fill="#0" id="circle1"/>
+	<circle cx="62.9956" cy="690.097" r="4" fill="#0" id="circle2"/>
+	<circle cx="106.696" cy="447.559" r="4" fill="#0" id="circle3"/>
+	<circle cx="161.322" cy="215.947" r="4" fill="#0" id="circle4"/>
+	<circle cx="194.097" cy="113.251" r="4" fill="#0" id="circle5"/>
+	<circle cx="259.648" cy="4" r="4" fill="#0" id="circle6"/>
+	<circle cx="392.934" cy="132.916" r="4" fill="#0" id="circle7"/>
+	<circle cx="460.67" cy="303.348" r="4" fill="#0" id="circle8"/>
+	<circle cx="471.595" cy="506.555" r="4" fill="#0" id="circle9"/>
+	<circle cx="482.52" cy="670.432" r="4" fill="#0" id="circle10"/>
+	<circle cx="495.63" cy="840.863" r="4" fill="#0" id="circle11"/>
+	<circle cx="482.52" cy="971.965" r="4" fill="#0" id="circle12"/>
+	</g>
+</svg>
