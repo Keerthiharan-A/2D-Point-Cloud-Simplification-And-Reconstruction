@@ -192,7 +192,7 @@ class Denoising:
             big, small = max(dist,big), min(dist, small)
 
         # Return true if the largest distance is less than twice the smallest distance
-        return big < 5 * small
+        return big < 2 * small
 
     def identify_flower_structures(self):
         flower_points = []
@@ -206,17 +206,17 @@ class Denoising:
 
     def plot_delaunay_with_flowers(self, flower_points):
         points = self.point_set
-        plt.triplot(points[:, 0], points[:, 1], self.tri.simplices, color='gray', linestyle='-', alpha=0.7,linewidth=3)
-        plt.plot(points[:, 0], points[:, 1], 'o', color='blue', markersize=14)
+        plt.triplot(points[:, 0], -points[:, 1], self.tri.simplices, color='gray', linestyle='-', alpha=0.7,linewidth=3)
+        plt.plot(points[:, 0], -points[:, 1], 'o', color='blue', markersize=14)
 
         # Highlight flower-like structure points
         for idx in flower_points:
-            plt.plot(points[idx, 0], points[idx, 1], 'o', color='red', markersize=14, label='Flower Structure' if idx == flower_points[0] else "")
+            plt.plot(points[idx, 0], -points[idx, 1], 'o', color='red', markersize=14, label='Flower Structure' if idx == flower_points[0] else "")
 
-        #plt.legend()
-        #plt.xlabel('X')
-        #plt.ylabel('Y')
-        #plt.title('Delaunay Triangulation with Flower Structure Points')
+        plt.legend()
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.title('Delaunay Triangulation with Flower Structure Points')
         plt.gca().invert_xaxis()   
         plt.gca().invert_yaxis()
         plt.axis('off')
@@ -299,10 +299,16 @@ class Denoising:
                 #     cd_old = cd_new
                 #     break
                 # cd_old = cd_new
-
+            flower_points = self.identify_flower_structures()
+            self.plot_delaunay_with_flowers(flower_points)
+            print("Number of flower points : ", len(flower_points))
             mask = self.clustering()
             print("After curvature:")
-
+            cnt = 0
+            for point_idx in flower_points:
+                if mask[point_idx]:
+                    cnt += 1
+            print("Number of flower points with high curvatures : ", cnt)
             # for iteration in range(self.iterations):
             #     denoised_points = []
             #     for point_idx, point in enumerate(self.point_set):
@@ -495,9 +501,9 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Monitor0.xy'  # Replace with your .xy file path
-gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\apple\BandNoise\apple-1-7.5-2.xy'
-denoising = Denoising(noisy_file_path, 35, gt_file_path)
+noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\teddy\Band Noise\teddy-01-12.5-5.xy'  # Replace with your .xy file path
+gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\teddy\Band Noise\teddy-01.xy'
+denoising = Denoising(noisy_file_path, 25, gt_file_path)
 denoising.denoise_point_set()
 
 # Running commands
