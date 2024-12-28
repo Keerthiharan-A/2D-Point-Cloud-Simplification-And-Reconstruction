@@ -58,7 +58,7 @@ def process_dataset(dataset_dir, r_values, rl_values):
 
 if __name__ == "__main__":
     # Parameters
-    dataset_dir = '/home/user/Documents/Minu/2D Denoising/2D-Point-Cloud-Simplification-And-Reconstruction/NonManifold_data'  # Path to dataset directory
+    dataset_dir = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\NonManifold_data\sharp_corners'  # Path to dataset directory
     r_values = [7.5, 10, 12.5]  # Values of r (circle radius)
     rl_values = [2, 2, 5]  # Values of rl (noise level)
 

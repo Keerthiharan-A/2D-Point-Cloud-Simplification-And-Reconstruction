@@ -6,6 +6,18 @@ def save_noise_points(file_path, points):
     """Saves the noisy points to a specified file."""
     np.savetxt(file_path, points, fmt='%.6f', delimiter=' ')
 
+def rename_txt_to_xy(folder_path):
+    """
+    Rename all .txt files in a folder to .xy.
+    """
+    for file in os.listdir(folder_path):
+        if file.endswith('.txt'):
+            base_name = os.path.splitext(file)[0]
+            new_name = f"{base_name}.xy"
+            old_path = os.path.join(folder_path, file)
+            new_path = os.path.join(folder_path, new_name)
+            os.rename(old_path, new_path)
+
 def process_dataset(dataset_dir, noise_levels):
     """Processes each folder in the dataset to add noise to point sets."""
     # Iterate through each folder in the dataset directory
@@ -13,6 +25,8 @@ def process_dataset(dataset_dir, noise_levels):
         object_folder_path = os.path.join(dataset_dir, object_folder)
         
         if os.path.isdir(object_folder_path):
+            #rename_txt_to_xy(object_folder_path)
+
             # Create the DistortedNoise folder inside the object folder
             distorted_noise_folder = os.path.join(object_folder_path, 'DistortedNoise')
             os.makedirs(distorted_noise_folder, exist_ok=True)
@@ -20,14 +34,13 @@ def process_dataset(dataset_dir, noise_levels):
             # Find the .xy file in the current object folder
             xy_file = None
             
-            for file in os.listdir(distorted_noise_folder):
+            for file in os.listdir(object_folder_path):
                 if file.endswith('.xy'):
                     xy_file = file
                     break  # We only need the first .xy file found
-            
             if xy_file:
                 # Read points from the .xy file
-                points = PointNoiseGenerator.read_points(os.path.join(distorted_noise_folder, xy_file))
+                points = PointNoiseGenerator.read_points(os.path.join(object_folder_path, xy_file))
                 generator = PointNoiseGenerator(points)
                 
                 # Generate noise for each specified noise level
@@ -43,7 +56,7 @@ def process_dataset(dataset_dir, noise_levels):
 
 if __name__ == "__main__":
     # Parameters
-    dataset_dir = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Additional_data'  # Path to the dataset directory
+    dataset_dir = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\NonManifold_data\multiple_components'  # Path to the dataset directory
     noise_levels = [0.005, 0.01, 0.015, 0.02]  # Values of noise levels to apply
 
     # Process the dataset and generate noise
