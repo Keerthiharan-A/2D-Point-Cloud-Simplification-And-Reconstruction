@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def generate_band_noise(points, r, nl):
     noise_points = []
     num_points = len(points)
-    points_per_circle = int(nl / 100 * num_points)
+    points_per_circle = max(1,int(nl / 100 * num_points))
     # Generate noise points by distributing them across the band area for each point
     for point in points:
         for _ in range(points_per_circle):  # Generate specified number of points per circle
@@ -13,12 +13,14 @@ def generate_band_noise(points, r, nl):
             new_x = point[0] + distance * np.cos(angle)
             new_y = point[1] + distance * np.sin(angle)
             noise_points.append([new_x, new_y])
+        noise_points.append(point)
 
     # Convert noise_points list to a numpy array
     noise_points = np.array(noise_points)
 
     # Ensure that noise_points is a 2D array, even if no points are generated
     if noise_points.size == 0:
+        print("Empty")
         noise_points = np.empty((0, 2))
 
     return noise_points
@@ -46,7 +48,7 @@ def read_points_from_file(file_path):
 
 if __name__ == "__main__":
     # Read input points from file
-    input_file = r'/home/user/Documents/Minu/2D Denoising/Data/sharp_corners/sc5.txt'  # Replace this with the path to your input file
+    input_file = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\NonManifold_data\multiple_components\mc1\mc1.xy'  # Replace this with the path to your input file
     points = read_points_from_file(input_file)
 
     # Parameters
@@ -58,4 +60,4 @@ if __name__ == "__main__":
 
     # Plot original points and noise band
     plot_noise_band(points, noise_points, r)
-    np.savetxt(r'sc5_band_12.5_2.xy', points, fmt='%.6f', delimiter=' ')
+    np.savetxt(r'sc5-12.5_2.xy', points, fmt='%.6f', delimiter=' ')
