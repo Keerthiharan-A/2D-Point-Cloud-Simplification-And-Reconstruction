@@ -23,6 +23,13 @@ def process_dataset(dataset_dir, r_values, rl_values):
     Process the dataset by generating band noise for each .xy file.
     If the folder contains .txt files, rename them to .xy before processing.
     """
+    # for object_folder in os.listdir(dataset_dir):
+    #     object_folder_path = os.path.join(dataset_dir, object_folder)
+        
+    #     if os.path.isdir(object_folder_path):
+    #         # Rename any .txt files to .xy files
+    #         rename_txt_to_xy(object_folder_path)
+
     # Iterate through each folder in the dataset directory
     band_noise_folder = os.path.join(dataset_dir, 'BandNoise')
     os.makedirs(band_noise_folder, exist_ok=True)
