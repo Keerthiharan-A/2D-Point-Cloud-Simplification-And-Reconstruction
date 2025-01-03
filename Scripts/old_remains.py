@@ -42,3 +42,40 @@
 #             #self.rmse()
 # denoised_file_path1 =  self.file_path.replace('.xy', f'_denoised_.xy')
             #self.save_to_xy_file(self.point_set, denoised_file_path1)
+
+# Code for clustering and denoising
+            # flower_points = self.identify_flower_structures()
+            # self.plot_delaunay_with_flowers(flower_points)
+            # print("Number of flower points : ", len(flower_points))
+            # mask = self.clustering()
+            # print("After curvature:")
+            # cnt = 0
+            # for point_idx in flower_points:
+            #     if mask[point_idx]:
+            #         cnt += 1
+            # print("Number of flower points with high curvatures : ", cnt)
+            # for iteration in range(self.iterations):
+            #     denoised_points = []
+            #     for point_idx, point in enumerate(self.point_set):
+            #         if mask[point_idx] and point_idx not in flower_points:
+            #             denoised_point = self.wls_with_normal(point_idx)
+            #             denoised_points.append(denoised_point)
+            #         #else:
+            #         #    denoised_points.append(point)
+            #     print(f"Iteration {iteration+1} completed.")
+            #     self.point_set = np.array(denoised_points)
+            #     cd_new = self.chamfer_distance()
+            #     # Computing DT again
+            #     self.tri = Delaunay(self.point_set) # Finding global DT
+            #     self.neighbors = self.find_neighbors()
+            #     if cd_old < cd_new:
+            #         break
+            #     cd_old = cd_new
+
+            # denoised_file_path =  self.file_path.replace('.xy', f'_cluster_denoised_.xy')
+            # #os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
+            # self.save_to_xy_file(self.point_set, denoised_file_path)
+            # print(self.file_path)
+            # app = DualPointVisualizerApp(self.file_path, denoised_file_path)
+            # app.open_windows()
+            # #self.chamfer_distance()

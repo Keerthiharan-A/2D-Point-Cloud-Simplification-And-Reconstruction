@@ -17,6 +17,9 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
+# from scipy.sparse import csr_matrix, diags, sp
+# from scipy.sparse.linalg import inv
+# import igl
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Utils.Create_features import Features
@@ -124,7 +127,7 @@ class Denoising:
         chamfer_BA = np.mean(np.min(distances_BA, axis=1))
         # Chamfer distance is the average of these two directed distances
         chamfer_dist = (chamfer_AB + chamfer_BA) / 2.0
-        print("Chamfer distance is:", chamfer_dist)
+        #print("Chamfer distance is:", chamfer_dist)
         return chamfer_dist
     
     def min_max_scaling(self, pointset):
@@ -201,7 +204,7 @@ class Denoising:
             if self.check_flower_structure(i):
                 flower_points.append(i)
         #self.plot_delaunay_with_flowers(flower_points)
-        print("Total # flower points: ", len(flower_points))
+        # print("Total # flower points: ", len(flower_points))
         return flower_points
 
     def plot_delaunay_with_flowers(self, flower_points):
@@ -248,7 +251,7 @@ class Denoising:
             pca.fit(neighbor_points)
             curvature = pca.explained_variance_ratio_[1] / pca.explained_variance_ratio_[0]
             curvatures.append(curvature)
-
+        print(min(curvatures))
         curvatures = np.array(curvatures).reshape(-1, 1)
         x_coords = np.array([point[0] for point in self.point_set])
         y_coords = np.array([point[1] for point in self.point_set])
@@ -260,7 +263,7 @@ class Denoising:
         default_color = 'gray'
         # Plotting the filtered points
         plt.figure(figsize=(10, 8))
-        plt.scatter(x_coords, y_coords, c=default_color, s=5, edgecolors='k', label='Other points')
+        #plt.scatter(x_coords, y_coords, c=default_color, s=5, edgecolors='k', label='Other points')
 
         # Plot only the points with curvature > 0.5 and apply heatmap coloring
         scatter = plt.scatter(filtered_x, filtered_y, c=filtered_curvatures, cmap='viridis', s=50, edgecolors='k', label='Curvature > 0.3')
@@ -275,15 +278,38 @@ class Denoising:
         plt.legend()
         plt.show()
         return mask
-
+    
+    def compute_mean_curvature(V, F):
+        """
+        V: Vertices array of shape (nb_verts, 3) representing the 3D points.
+        F: Faces array of shape (nb_faces, 3) representing triangular faces (indices into V).
+        """
+        L = csr_matrix((V.shape[0], V.shape[0]))  # Initialize a sparse matrix for Laplacian
+        igl.cotmatrix(V, F, L)  # Use igl's function to compute the Laplacian (minimizing area-based cotangent weights)
+        
+        M = csr_matrix((V.shape[0], V.shape[0]))  # Initialize a sparse matrix for Mass matrix
+        igl.massmatrix(V, F, igl.MASSMATRIX_TYPE_VORONOI, M)  # Compute the mass matrix
+        
+        M_inv = inv(M)  # Inverse of the mass matrix (using SciPy's sparse matrix inversion)
+        
+        # HN = -Minv * (L * V)  => Minv * L * V is essentially applying the Laplace-Beltrami operator to the vertex positions
+        L_V = L.dot(V)  # Apply the Laplacian to the vertex positions
+        HN = -M_inv.dot(L_V)  # Multiply by the inverse of the mass matrix
+        
+        # The mean curvature is the norm of the curvature vector HN at each vertex
+        H = np.linalg.norm(HN, axis=1)  # Compute the norm along the rows (vertices)
+        
+        return H
+    
     def denoise_point_set(self):
-        #noise_type = "Distorted"
-        noise_type = self.classify_noise()
-        #noise_type = "Band"
+        #noise_type = self.classify_noise()
+        noise_type = "Band"
         cd_old = self.chamfer_distance()
+        noisy_cd = cd_old
+        no_of_iters = 0
         #self.clustering()
         if noise_type == "Band":
-            print("band noise")
+            #print("band noise")
             for iteration in range(self.iterations):
                 denoised_points = []
                 for idx, point in enumerate(self.point_set):
@@ -291,50 +317,16 @@ class Denoising:
                     denoised_points.append(denoised_point)
 
                 self.point_set = np.array(denoised_points)
-                print(f"Iteration {iteration+1} completed.")
+                #print(f"Iteration {iteration+1} completed.")
                 cd_new = self.chamfer_distance()
                 # Computing DT again
                 self.tri = Delaunay(self.point_set) # Finding global DT
                 self.neighbors = self.find_neighbors()
-                # if cd_old < cd_new:
-                #     cd_old = cd_new
-                #     break
-                # cd_old = cd_new
-            flower_points = self.identify_flower_structures()
-            self.plot_delaunay_with_flowers(flower_points)
-            print("Number of flower points : ", len(flower_points))
-            mask = self.clustering()
-            print("After curvature:")
-            cnt = 0
-            for point_idx in flower_points:
-                if mask[point_idx]:
-                    cnt += 1
-            print("Number of flower points with high curvatures : ", cnt)
-            # for iteration in range(self.iterations):
-            #     denoised_points = []
-            #     for point_idx, point in enumerate(self.point_set):
-            #         if mask[point_idx]:
-            #             denoised_point = self.wls_with_normal(point_idx)
-            #             denoised_points.append(denoised_point)
-            #         else:
-            #             denoised_points.append(point)
-            #     print(f"Iteration {iteration+1} completed.")
-            #     self.point_set = np.array(denoised_points)
-            #     cd_new = self.chamfer_distance()
-            #     # Computing DT again
-            #     self.tri = Delaunay(self.point_set) # Finding global DT
-            #     self.neighbors = self.find_neighbors()
-            #     if cd_old < cd_new:
-            #         break
-            #     cd_old = cd_new
-
-            denoised_file_path =  self.file_path.replace('.xy', f'_cluster_denoised_.xy')
-            #os.makedirs(os.path.dirname(denoised_file_path), exist_ok=True)
-            self.save_to_xy_file(self.point_set, denoised_file_path)
-            print(self.file_path)
-            app = DualPointVisualizerApp(self.file_path, denoised_file_path)
-            app.open_windows()
-            #self.chamfer_distance()
+                if cd_old < cd_new:
+                    cd_old = cd_new
+                    break
+                cd_old = cd_new
+                no_of_iters += 1
 
         elif noise_type == "Distorted":
             print("Distorted noise")
@@ -386,6 +378,8 @@ class Denoising:
            
         else:
             print("The given point set is clean")
+        
+        return noisy_cd, cd_old, no_of_iters
 
     def quadratic_wls(self, point_idx): 
         neighbor_indices = [neighbor[0] for neighbor in self.neighbors[point_idx]]
@@ -502,9 +496,9 @@ class Denoising:
         np.savetxt(file_path, points, fmt='%.6f')
         print(f"Denoised points saved to {file_path}")
 
-noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\teddy\Band Noise\teddy-01-12.5-5.xy'  # Replace with your .xy file path
-gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\teddy\Band Noise\teddy-01.xy'
-denoising = Denoising(noisy_file_path, 25, gt_file_path)
+noisy_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\apple\BandNoise\apple-1-12.5-5.xy'  # Replace with your .xy file path
+gt_file_path = r'D:\2D-Point-Cloud-Simplification-And-Reconstruction\Feature_data\apple\BandNoise\apple-1.xy'
+denoising = Denoising(noisy_file_path, 15, gt_file_path)
 denoising.denoise_point_set()
 
 # Running commands

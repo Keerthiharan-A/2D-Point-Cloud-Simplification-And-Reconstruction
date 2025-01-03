@@ -1,0 +1,2 @@
+File Name,Noise Type,Noise Level,Noisy_CD,Denoised_CD,No of Iterations
+apple-1-10-2.xy,Band Noise,"(10,2)",2.671043619361246,2.0500598802814523,6
